@@ -2,7 +2,6 @@
 
 show-rebuilds?  false to show-rebuilds?   \ We don't need to see these commands
 
-" svn info ../../../../../.. | grep URL: | cut -d ' ' -f 2 | tr \\n ' ' >sourceurl" $sh
-" svnversion -n ../../../../../.. >>sourceurl" $sh
+" git remote --verbose show | head -1 | cut -f2 | cut -f1 -d' ' | tr  \\n ' ' > sourceurl ; git branch -v | cut -f2,3 -d' ' | tr  \\n ' ' >>sourceurl ; git status --porcelain | wc --lines >>sourceurl" $sh
 
 to show-rebuilds?
