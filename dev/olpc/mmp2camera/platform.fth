@@ -31,6 +31,7 @@ hex
 [ifdef] cam-pwrdn-gpio# 
    ( cam-pwrdn-gpio# gpio-set )       \ Leave low for Linux
 [then]
+   cam-rst-gpio# gpio-clr
    cam-pwr-gpio# gpio-clr
 ;
 [then]
