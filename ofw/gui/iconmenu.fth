@@ -276,7 +276,7 @@ alias /pix* /w*
 : (restore-scroller)  ( fg bg -- )
 
    ( fg bg )  0 0  max-x max-y  set-text-region
-   " "(9b)1;1H"(9b)J" screen-write
+   " "(1b)[1;1H"(1b)[J" screen-write
    0 #line !
    ['] scroller-lines to lines/page
    cursor-on

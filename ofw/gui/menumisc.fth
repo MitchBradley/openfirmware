@@ -13,8 +13,8 @@ headerless
       nip 2r> rot +                     ( rem$' head$' )
    loop
 ;
-: clear-screen  ( -- )  " "(9b)1;1H"(9b)J" type  ;
-: clear-line    ( -- )  " "(9b)K" type  ;
+: clear-screen  ( -- )  " "(1b)[1;1H"(1b)[J" type  ;
+: clear-line    ( -- )  " "(1b)[K" type  ;
 
 headers
 \ Paginate a long string of text containing embedded line delimiters,

@@ -87,12 +87,12 @@ headers
    " write" $call-screen drop
 ;
 : show-description  ( adr len -- )
-   " "(9b)1;1H"(9b)K" screen-write
+   " "(1b)[1;1H"(1b)[K" screen-write
    screen-write
 ;
 
-: cursor-off  ( -- )  " "(9b)25l" screen-write  ;
-: cursor-on   ( -- )  " "(9b)25h" screen-write  ;
+: cursor-off  ( -- )  " "(1b)[25l" screen-write  ;
+: cursor-on   ( -- )  " "(1b)[25h" screen-write  ;
 
 \ Width and height of text characters
 : char-wh  ( -- x y )
@@ -181,7 +181,7 @@ d# 16  constant text-height
    border  max-y scroller-height -            ( fg bg x y )
    max-x border -  scroller-height            ( fg bg x y w h )
    inset  set-text-region
-   " "(9b)1;1H"(9b)2JK"(9b)2;1H" screen-write
+   " "(1b)[1;1H"(1b)[2JK"(1b)[2;1H" screen-write
 ;
 
 headers
