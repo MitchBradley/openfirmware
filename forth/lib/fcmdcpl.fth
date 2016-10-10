@@ -20,8 +20,7 @@ headers
 : ^` expand-word ;	\ Control-space or control-back-tick
 : ^| expand-word ;	\ Control-vertical-bar or control-backslash
 : ^} do-show ;		\ Control-right-bracket
-: ^? do-show ;		\ Control-question-mark
-h# 7f last @ name>string drop 1+ c!   	\ Hack hack
+: ^_ do-show ;		\ Control-question-mark or control_underscore
 
 only forth also definitions
 

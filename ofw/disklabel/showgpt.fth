@@ -3,10 +3,10 @@ purpose: GUID Partition Table handler
 
 d# 512 value /gpt-sector
 
-32\ : read-gpt-sector  ( x.lba# -- )
-32\    drop /gpt-sector um* " seek" disk-dev $call-method drop
-32\    sector-buf /gpt-sector " read" disk-dev $call-method drop
-32\ ;
+: read-gpt-sector  ( x.lba# -- )
+   x>u /gpt-sector um* " seek" disk-dev $call-method drop
+   sector-buf /gpt-sector " read" disk-dev $call-method drop
+;
 0 value gpt-entries/sector
 
 -1 value this-sector
