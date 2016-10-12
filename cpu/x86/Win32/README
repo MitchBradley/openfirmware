@@ -1,0 +1,11 @@
+This is the build directory for Forth running under Windows.
+
+If you are building one of the OFW versions from, say,
+cpu/x86/pc/emu/build/Makefile, using MINGW32, you will need to create
+a symlink to this directory whose name matches the output of uname.
+
+For example (from our parent directory, i.e. cpu/x86):
+
+$ uname
+MINGW32_NT-6.1
+$ ln -s Win32 MINGW32_NT-6.1

@@ -56,7 +56,9 @@ which is part of the Forth image file.
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifndef WIN32
 #include <sys/mman.h>
+#endif
 
 /* 
  * The following #includes and externs fix GCC warnings when compiled with
@@ -81,6 +83,8 @@ char *host_os = "Linux";
 #ifdef WIN32
 #define ENV_DELIM  ';'
 #define HOST_LITTLE_ENDIAN
+char *host_os = "Win32";
+#define PAGESIZE 4096
 #endif
 
 #ifndef ENV_DELIM
@@ -501,13 +505,13 @@ long (*functions[])() = {
 /*	200  */
 	s_getwd0,
 
-#ifdef WIN32
-#include "win32fun.c"
-#include "jtagfun.c"
-#else
+        //#ifdef WIN32
+        //#include "win32fun.c"
+        //#include "jtagfun.c"
+        //#else
 	/* Windows socket stuff 204 .. 264 */
 	0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,
-#endif
+        //#endif
 
 #ifdef JTAG
 #include "jtagfun.c"
@@ -943,11 +947,13 @@ main(int argc, char **argv
 	}
 	loadaddr = (char *)(((long)loadaddr + (PAGESIZE-1)) & ~(PAGESIZE-1));
 
+#ifndef WIN32
 	// Make the dictionary memory executable
 	if (mprotect(loadaddr, dictsize + relsize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
 		perror("forth: mprotect");
 		exit(1);
 	}
+#endif
 
 	if( f_read(f, loadaddr, dictsize) <= 0) {
 		error("forth: Error reading dictionary file","");
@@ -2323,13 +2329,21 @@ m_inflate(long nohdr, long outadr, long inadr)
 INTERNAL long
 m_map(long fd, long len, long off)
 {
+#ifdef WIN32
+	return -1;
+#else
 	return (long)mmap((void *)0, (size_t)len, PROT_READ|PROT_WRITE, MAP_SHARED, (int)fd, (off_t)off);
+#endif
 }
 
 INTERNAL long
 m_unmap(long len, long addr)
 {
+#ifdef WIN32
+	return -1;
+#else
 	return (long)munmap((void *)addr, (size_t)len);
+#endif
 }
 
 /*

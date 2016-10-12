@@ -4,3 +4,4 @@ build
 dsdt.stamp
 sourceurl
 memtest
+bios_verify*
