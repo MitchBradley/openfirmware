@@ -1,11 +1,13 @@
 \ See license at end of file
 purpose: Terminal control for ANSI terminals
 
+true value ansiterm?
+
 headerless
 : .esc[        ( -- )     control [ (emit  [char] [ (emit  ;
-: .esc[x       ( c -- )   .esc[ (emit  ;
+: .esc[x       ( c -- )   ansiterm?  if  .esc[ (emit  else  drop  then  ;
 : put-n        ( n -- )   push-decimal  (.) (type  pop-base  ;
-: .esc[nx      ( n c -- n )  .esc[ over put-n (emit  ;
+: .esc[nx      ( n c -- n )  ansiterm?  if  .esc[ over put-n (emit  else  2drop  then  ;
 headers
 
 : left         ( -- )     [char] D .esc[x  -1 #out  +!  ;
@@ -36,6 +38,7 @@ defer dark   ' inverse-video is dark
 
 : at-xy  ( col row -- )
     2dup #line !  #out !
+    ansiterm?  0=  if  2drop exit  then
     .esc[   1+ put-n  [char] ; (emit  1+ put-n  [char] H (emit
 ;
 : page         ( -- )  0 0 at-xy  kill-screen  ;
