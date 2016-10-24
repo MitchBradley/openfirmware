@@ -1007,6 +1007,9 @@ main(int argc, char **argv
 
 	dictsize = sizeof(header) + imagesize +  extrasize ; 
 	dictsize += 16;		/* Allow for alignment */
+#ifndef roundup
+#define    roundup(x, y)   ((((x)+((y)-1))/(y))*(y))  /* to any y */
+#endif
 	memsize = roundup(dictsize, PAGESIZE);
 
 # ifdef VERBOSE

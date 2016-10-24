@@ -276,7 +276,9 @@ void simhandler(int sig)
 {
     extern void restoremode();
 
+#ifndef __MINGW32__
 	psignal(sig, "forth");
+#endif
     regdump(instruction, last_pc, 1);
     restoremode();
     exit(1);
@@ -323,7 +325,9 @@ simulate(u8 *mem, u32 start, u32 header, u32 syscall_vec,
     u32 namelen;
     // u32 last_pc;
 
+#ifdef SIGBUS
 	signal(SIGBUS, simhandler);
+#endif
 	signal(SIGSEGV, simhandler);
 
     APSR.all = 0;
