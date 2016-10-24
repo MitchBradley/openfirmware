@@ -1,44 +1,43 @@
-purpose: Load file for OFW on ARM VersatilePB as emulated by QEMU
+purpose: Load file for Forth on ARM VersatilePB as emulated by QEMU
 \ See license at end of file
 
 \ Example QEMU command line:
-\   qemu-system-arm -M versatilepb -m 32 -kernel qemubase.rom -serial vc
+\   qemu-system-arm -M versatilepb -m 32 -kernel qemuforth.rom -serial vc
 \ Then type "Ctrl-Alt 3" in the QEMU popup window to get the serial console
 \ The memory size (32 shown above) is not critical - 16 or greater works.
 \
 \ Alternatively:
-\   qemu-system-arm -M versatilepb -m 32 -kernel qemubase.rom -serial stdio
+\   qemu-system-arm -M versatilepb -m 32 -kernel qemuforth.rom -serial stdio
 \ That puts the serial console in the same window where you ran qemu-serial-arm
 
 
-dictionary: ${BP}/cpu/arm/build/basefw.dic
+dictionary: ${BP}/cpu/arm/build/tools.dic
 command: &armforth &dictionary &this
 build-now
 
-" qemubase.tag" r/w create-file drop  tag-file !
+" qemuforth.tag" r/w create-file drop  tag-file !
 
 \ ' $report-name is include-hook
 
 h# 8.0000 constant initial-heap-size
-
-: (initial-heap)  ( -- adr len )   limit  initial-heap-size  ;
-' (initial-heap) to initial-heap
-
 
 fload ${BP}/cpu/arm/pl011-diaguart.fth	\ PL011 UART
 h# 101f1000 to pl011-base  \ UART0 base address on VersatilePB board
 
 fload ${BP}/forth/lib/sysuart.fth	\ Set console I/O vectors to UART
 
-: startup  ( -- )
-   ." ARM QEMU Open Firmware" cr
-   hex
-;
+fload ${BP}/forth/lib/dumballo.fth
 
 \ Install the simple UART driver from the standalone I/O init chain
 : stand-init-io  ( -- )
-   stand-init-io
+   \ stand-init-io
    init-pl011  install-uart-io
+   install-dumb-alloc
+;
+: stand-init  ( -- )  ;
+: startup  ( -- )
+   ." ARM QEMU Forth" cr
+   hex
 ;
 
 \ This is some glue code to convert the machine setup that QEMU gives us
@@ -65,7 +64,7 @@ tag-file @ fclose  tag-file off
 
 fload ${BP}/cpu/arm/saverom.fth  \ Save the dictionary for standalone startup
 
-.( --- Saving qemubase.rom --- )  cr " qemubase.rom" $save-rom
+.( --- Saving qemuforth.rom --- )  cr " qemuforth.rom" $save-rom
 
 \ LICENSE_BEGIN
 \ Copyright (c) 2009 FirmWorks

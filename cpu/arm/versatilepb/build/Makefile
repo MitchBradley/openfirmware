@@ -1,4 +1,5 @@
-ROMNAME=qemubase
+# Alternatively, ROMNAME=qemuforth make
+ROMNAME?=qemubase
 
 BASEDIR= `(cd ../../../..; pwd;)`
 
