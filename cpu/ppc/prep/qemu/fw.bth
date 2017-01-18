@@ -22,7 +22,7 @@ fload ${BP}/forth/lib/sysuart.fth	\ Plug UART routines into key and emit
    ." Open Firmware"
    " build-date"  $find  if  ."  , Built  " execute type  else  2drop  then  cr
    ?spaces ." Copyright (c) 1995-2000, FirmWorks." cr
-   ?spaces ." Copyright (c) 2014, Artyom Tarasenko." cr
+   ?spaces ." Copyright (c) 2014,2017, Artyom Tarasenko." cr
 ;
 ' fw-title to .firmware
 
