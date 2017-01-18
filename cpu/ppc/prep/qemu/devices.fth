@@ -13,6 +13,9 @@ fload ${BP}/cpu/ppc/prep/qemu/pcinode.fth
 
 end-package
 
+\ This must precede isamisc.fth in the load file, to execute it first
+fload ${BP}/cpu/x86/pc/moveisa.fth
+
 \ Create the /ISA node in the device tree, and load the ISA bridge code.
 \ Usually this includes the dma controller, interrupt controller, and timer.
 0 0  " b"  " /pci" begin-package
