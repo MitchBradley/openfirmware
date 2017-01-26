@@ -46,15 +46,15 @@ fload ${BP}/cpu/ppc/prep/qemu/fixednv.fth  \ Offsets of fixed regions of NVRAM
 fload ${BP}/cpu/ppc/prep/qemu/macaddr.fth
 
 0 0  " i74"  " /pci/isa" begin-package	  \ NVRAM node
-fload ${BP}/dev/ds1385n.fth
+   fload ${BP}/dev/ds1385n.fth
 
-" mk48t18-nvram" encode-string
-" ds1385-nvram"  encode-string encode+
-" pnpPNP,8"      encode-string encode+
-" compatible" property
-
-env-end-offset to /nvram
+   " mk48t18-nvram" encode-string
+   " ds1385-nvram"  encode-string encode+
+   " pnpPNP,8"      encode-string encode+
+   " compatible" property
+   env-end-offset to /nvram
 end-package
+
 stand-init: NVRAM
    " /nvram" open-dev  to nvram-node
     init-config-vars
