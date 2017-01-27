@@ -275,7 +275,7 @@ fload ${BP}/dev/ide/atapi.fth
    scratchbuf 6 wa+ le-w@ /secs!
 
 \   /cyls h# 3fff u>=  if
-   scratchbuf d# 49 wa+ w@ h# 200 and  if  \ LBA
+   scratchbuf d# 49 wa+ le-w@ h# 200 and  if  \ LBA
       scratchbuf d# 60 wa+ le-w@
       scratchbuf d# 61 wa+ le-w@
       wljoin /lba!
