@@ -290,6 +290,7 @@ headerless
    ['] s3-crt-table             to crt-table
    ['] init-s3-controller       to init-controller
    ['] reinit-s3-controller     to reinit-controller
+   ['] vga-video-on             to video-on
    use-s3-dac-methods
 ;
 
