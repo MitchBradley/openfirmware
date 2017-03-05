@@ -1422,11 +1422,22 @@ action:  drop  ;
    then
 ;
 
-: delete-property  ( name-adr,len -- )
+: (delete-property)  ( name-adr,len -- )
    current-properties (search-wordlist)  if
       >link current-properties  remove-word
    then
 ;
+
+: delete-property  ( name-adr,len  -- )
+   my-self if
+      context token@ >r my-voc (select-package)
+      (delete-property)
+      r> context token!
+   else
+      (delete-property)
+   then
+;
+
 : forget  \ name  ( -- )
    current token@  device-node?  abort" Can't forget device methods"
    forget
