@@ -55,17 +55,21 @@ headerless
 
    s3-trio64? s3-virge? or  if
       4 c-l@ 2 or 4 c-l!
-      3cc io-base + cpeek  if  ff =  else  true  then  if  1 3c3 pc!  then
+      3cc io-base + cpeek  if ff =
+      \ Hercules Terminator with Trio-64V+ version 54 responds with
+      \ a9 here. The manual says 10 in bit 3-2 is a reserved combination,
+      \ but it might be an unreliable test. It looks like after the vga-wakeup
+      \ the 2f register is unlocked, so check the chip version there.
+      \ The former comment stated that '764 and '765 are indistinguishable
+      \ at this point, so it might be the case for the earlier chip versions.
+      \ Get back here if someone reports regression with Trio-64.
+      s3-trio64?  if 2f crt@ 40 and or then \ Trio-64V+
+      else  true  then  if  1 3c3 pc!  then
    then
 
-   \ As it turns out, the Trio-64V+ (which at this point in the probe process
-   \ is indistinguishable from all of the other versions of the Trio-64, also
-   \ won't have initialized prior to the above command. So, that extra command
-   \ is usefull for both the "Z" Trio-64 and the Trio-64V+ (also known as the
-   \ '765 [all other Trios have a '764 part number]). Oh but wait, there is 
-   \ more. The 765 does not respond to IO accesses unless the memory access 
-   \ enable bit is also turned on. Which is why the above now includes this 
-   \ "feature".
+   \ Oh but wait, there is  more. The 765 does not respond to IO accesses
+   \ unless the memory access  enable bit is also turned on. Which is why
+   \ the above now includes this  "feature".
 
    \ And now back to our regularly scheduled programming...
 
