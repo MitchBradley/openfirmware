@@ -33,7 +33,7 @@ fload ${BP}/dev/pci/intmap.fth		\ Generic interrupt mapping code
 
 device-end
 
-" 2,3,4,5"  dup config-string pci-probe-list
+" b,5,4,3,2,1"  dup config-string pci-probe-list
 
 \ LICENSE_BEGIN
 \ Copyright (c) 1997 FirmWorks
