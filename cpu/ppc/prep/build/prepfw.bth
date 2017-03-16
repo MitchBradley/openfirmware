@@ -59,6 +59,7 @@ fload ${BP}/cpu/ppc/cache603.fth	\ Cache synchronization
 fload ${BP}/cpu/ppc/segreg.fth	\ Segment register access
 fload ${BP}/cpu/ppc/bat.fth		\ BAT mapping register access
 fload ${BP}/cpu/ppc/scrub.fth	\ Fast memory scrubbing using "dcbz"
+fload ${BP}/cpu/ppc/scrub601.fth \ Fast memory scrubbing - 601 version 
 
 fload ${BP}/ofw/termemu/cp881-16.fth  \ ISO-Latin1 Font
 hex

@@ -290,7 +290,12 @@ then
    sync
    tlbie  pteg
    sync
-   tlbsync
+   mfspr  temp,pvr
+   rlwinm temp,temp,16,16,31
+   cmpi   0,0,temp,1
+   <> if
+      tlbsync
+   then
    sync
 
 1 L:

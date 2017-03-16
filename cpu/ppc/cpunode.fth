@@ -70,6 +70,10 @@ headerless
    ( tlb-params cache-params adr len )  device-name
    " cpu" device-type
 ;
+: make-601-node  ( -- )
+   " PowerPC,601" start-cpu-node
+   d# 2  d# 256  d# 64  d# 32  d# 32768  3dup  make-cache-props
+;
 : make-603-node  ( -- )
    " PowerPC,603" start-cpu-node
    d# 64  d# 128   d# 128  d# 32  d# 8192  3dup  make-cache-props
@@ -141,6 +145,7 @@ defer make-cpu-extras	' noop to make-cpu-extras
    " /cpus" find-device
 
    cpu-version  case
+       1 of  make-601-node    endof
        3 of  make-603-node    endof
        4 of  make-604-node    endof
        6 of  make-603e-node   endof
