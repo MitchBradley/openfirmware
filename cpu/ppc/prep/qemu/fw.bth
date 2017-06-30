@@ -72,12 +72,7 @@ fload ${BP}/cpu/ppc/prep/qemu/probemem.fth	\ Memory probing
 
 fload ${BP}/cpu/ppc/prep/residdef.fth		\ Residual data structure
 
-: get-int  ( name$ phandle -- int )
-   get-package-property  abort" Missing property"  get-encoded-int
-;
-
-: make-boot-name ;
-
+fload ${BP}/cpu/ppc/prep/aixnvram.fth              \ AIX fw-boot-device env
 fload ${BP}/cpu/ppc/prep/mkresid.fth               \ Residual data creation
 fload ${BP}/cpu/ppc/prep/encresid.fth              \ Residual data encoding
 
