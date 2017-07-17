@@ -255,6 +255,10 @@ typedef long quadlet;
 # include <sys/time.h>
 # include <sys/ioctl.h>	/* For FIONREAD */
 #endif
+#ifdef __linux__
+# include <time.h>
+# include <sys/ioctl.h>
+#endif
 
 #ifdef SYS5
 # define USE_TERMIOS
