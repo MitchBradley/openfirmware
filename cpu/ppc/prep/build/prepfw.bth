@@ -149,6 +149,17 @@ fload ${BP}/ofw/core/countdwn.fth	 \ Startup countdown
 fload ${BP}/forth/lib/pattern.fth		\ Text string pattern matching
 fload ${BP}/ofw/core/filecmds.fth 	\ File commands: dir, del, ren, etc.
 
+fload ${BP}/cpu/ppc/prep/crc.fth        \ CCITT polynomial CRC
+fload ${BP}/cpu/ppc/prep/nvramhdr.fth   \ PReP NVRAM header
+fload ${BP}/cpu/ppc/prep/nvtypes.fth    \ PReP-specific encodings
+
+install-prep-nv
+
+stand-init: Initialize fixed vars
+    init-fixed-nv
+;
+
+
 : startup  ( -- )
    standalone?  0=  if  exit  then
 
