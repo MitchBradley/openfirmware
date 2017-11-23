@@ -36,15 +36,17 @@ fload ${BP}/cpu/ppc/prep/raven.fth
 \ Add name properties and an init method to the root node of the device tree.
 fload ${BP}/cpu/ppc/prep/qemu/rootnode.fth
 
-\ Add drivers for supported plug-in cards
-fload ${BP}/cpu/ppc/prep/qemu/devices.fth
-fload ${BP}/cpu/ppc/prep/qemu/devalias.fth
-
 : (probe-all)
   true to fcode-debug?
   true to diag-switch?
    " probe-" do-drop-in
    probe-pci
+   " /interrupt-controller" find-package if
+     push-package
+     root-phandle encode-int
+     bffffff0 encode-int encode+  1 encode-int encode+ " other-bus-reg" property
+     pop-package
+   then
 ;
 ['] (probe-all) to probe-all
 
@@ -71,6 +73,10 @@ fload ${BP}/cpu/ppc/prep/residdef.fth		\ Residual data structure
 
 fload ${BP}/cpu/ppc/prep/mkresid.fth               \ Residual data creation
 fload ${BP}/cpu/ppc/prep/encresid.fth              \ Residual data encoding
+
+\ Add drivers for supported plug-in cards
+fload ${BP}/cpu/ppc/prep/qemu/devices.fth
+fload ${BP}/cpu/ppc/prep/qemu/devalias.fth
 
 fload ${BP}/cpu/ppc/prep/fortyone.fth              \ handler for AIX booting
 
