@@ -47,6 +47,13 @@ fload ${BP}/cpu/ppc/prep/qemu/rootnode.fth
      bffffff0 encode-int encode+  1 encode-int encode+ " other-bus-reg" property
      pop-package
    then
+   " /scsi" find-package if
+     push-package
+     01.00.00 24.4d.00.1b " aix-id" eval
+     6380 " aix-flags" eval \ Disableable | Integrated | Configurable | Boot
+     pop-package
+   then
+
 ;
 ['] (probe-all) to probe-all
 
