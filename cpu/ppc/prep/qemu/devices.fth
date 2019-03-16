@@ -165,12 +165,17 @@ stand-init: NVRAM
     init-config-vars
 ;
 
-0 0 " b,1" " /pci" begin-package
-   fload ${BP}/dev/ide/pcilintf.fth
+0 0  " i1f0" " /isa" begin-package
+   fload ${BP}/dev/ide/isaintf.fth
    fload ${BP}/dev/ide/generic.fth
    fload ${BP}/dev/ide/onelevel.fth
-end-package
-\ One-level IDE
+   6380 aix-flags
+   01.01.01 41.d0.06.00 aix-id
+   24.4d.04.80 chip-id
+   1 " slave" integer-property
+   d encode-int  1 encode-int encode+  " interrupts" property
+   6 encode-int " dma" property
+end-package \ One-level IDE
 
 \ Mark all ISA devices as built-in.
 " /isa" find-device  mark-builtin-all  device-end
