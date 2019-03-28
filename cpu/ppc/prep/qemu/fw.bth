@@ -58,6 +58,13 @@ fload ${BP}/cpu/ppc/prep/qemu/rootnode.fth
      0184 " aix-flags" eval \ Disableable | Configurable | ConsoleOut
      pop-package
    then
+   " /isa/ide" find-package if
+     1f0 pc@ 0= if
+       delete-package
+     else
+       drop
+     then
+   then
 ;
 ['] (probe-all) to probe-all
 
