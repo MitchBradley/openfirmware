@@ -53,7 +53,11 @@ fload ${BP}/cpu/ppc/prep/qemu/rootnode.fth
      6380 " aix-flags" eval \ Disableable | Integrated | Configurable | Boot
      pop-package
    then
-
+   " /vga" find-package if
+     push-package
+     0184 " aix-flags" eval \ Disableable | Configurable | ConsoleOut
+     pop-package
+   then
 ;
 ['] (probe-all) to probe-all
 
