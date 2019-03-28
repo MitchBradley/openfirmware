@@ -52,6 +52,8 @@ fload ${BP}/cpu/ppc/prep/qemu/rootnode.fth
      01.00.00 24.4d.00.1b " aix-id" eval
      6380 " aix-flags" eval \ Disableable | Integrated | Configurable | Boot
      pop-package
+     " disk" " /scsi/disk@0,0:1" $devalias
+     " cdrom" " /scsi/disk@2" $devalias
    then
    " /vga" find-package if
      push-package
