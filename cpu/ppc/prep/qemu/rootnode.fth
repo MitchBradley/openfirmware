@@ -3,7 +3,7 @@ purpose: Methods for root node
 
 dev /
 " device-tree" device-name
-" QEMU PReP" model
+" QEMU PReP/40p" model
 
 : init  ( -- )
 
