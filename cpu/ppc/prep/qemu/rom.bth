@@ -10,6 +10,8 @@ in: ${BP}/dev/video/build/bga.fc
 in: ${BP}/dev/video/build/cirrus.fc
 in: ${BP}/dev/video/build/video.fc
 in: ${BP}/dev/ncr53810/build/ncr531010.fc
+in: ${BP}/dev/amd79970/build/vmlance.fc
+
 build-now
 
 \needs $add-dropin  fload ${BP}/forth/lib/mkdropin.fth
@@ -29,6 +31,7 @@ writing qprepofw.rom
    " ${BP}/dev/video/build/bga.fc"         " pci1234,1111" $add-dropin
    " ${BP}/dev/video/build/video.fc"       " class030000"  $add-dropin
    " ${BP}/dev/ncr53810/build/ncr531010.fc" " pci1000,1"   $add-dropin
+   " ${BP}/dev/amd79970/build/vmlance.fc"  " pci1022,2000" $add-dropin
    " ${BP}/ofw/termemu/cp881-16.obf"       " font"         $add-dropin
 \ h# 8.0000 pad-file
 ofd @ fclose

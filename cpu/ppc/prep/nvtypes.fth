@@ -144,22 +144,6 @@ warning @ warning off
 ;
 warning !
 
-d#  20 value /fixed-nv
-h# 7ec value fixed-nv-base	\ Override as needed for the platform
-
-true value fixed-nv-ok?
-
-: fixed-nv@  ( offset -- byte )  fixed-nv-base +  nv-c@  ;
-: fixed-nv!  ( byte offset -- )  fixed-nv-base +  nv-c!  ;
-
-: fixed-nv-checksum  ( -- checksum )
-   0  /fixed-nv  0  ?do  i fixed-nv@ xor  loop  ( checksum )
-;
-
-: set-fixed-nv-checksum  ( -- )
-   fixed-nv-checksum  0 fixed-nv@ xor  h# 5a xor  0 fixed-nv!
-;
-
 6 actions
 action: fixed-nv-ok?  if  l@ fixed-nv@ 0<>  else  la1+ @  then  ;
 action: l@ fixed-nv! set-fixed-nv-checksum  ;
@@ -199,17 +183,6 @@ action: la1+ @  ;
 
 ' diag-switch? is (diagnostic-mode?)
 
-: init-fixed-nv  ( -- )
-   fixed-nv-checksum h# 5a = ?dup  if  to fixed-nv-ok? exit  then
-   ['] diag-switch? do-set-default
-   ['] real-mode?   do-set-default
-   ['] real-base    do-set-default
-   ['] real-size    do-set-default
-   ['] virt-base    do-set-default
-   ['] virt-size    do-set-default
-   ['] hrp-memmap?  do-set-default
-   fixed-nv-checksum h# 5a =  to fixed-nv-ok?
-;
 
 headerless
 : install-prep-nv  ( -- )

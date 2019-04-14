@@ -20,9 +20,9 @@ fload ${BP}/forth/lib/sysuart.fth	\ Plug UART routines into key and emit
 : ?report drop ;
 : fw-title ( -- )
    ." Open Firmware"
-   " build-date"  $find  if  ."  , Built  " execute type  else  2drop  then  cr
+   " build-date"  $find  if  ." , built  " execute type  else  2drop  then  cr
    ?spaces ." Copyright (c) 1995-2000, FirmWorks." cr
-   ?spaces ." Copyright (c) 2014,2017, Artyom Tarasenko." cr
+   ?spaces ." Copyright (c) 2014,2017,2019 Artyom Tarasenko." cr
 ;
 ' fw-title to .firmware
 
@@ -36,15 +36,37 @@ fload ${BP}/cpu/ppc/prep/raven.fth
 \ Add name properties and an init method to the root node of the device tree.
 fload ${BP}/cpu/ppc/prep/qemu/rootnode.fth
 
-\ Add drivers for supported plug-in cards
-fload ${BP}/cpu/ppc/prep/qemu/devices.fth
-fload ${BP}/cpu/ppc/prep/qemu/devalias.fth
-
 : (probe-all)
   true to fcode-debug?
   true to diag-switch?
    " probe-" do-drop-in
    probe-pci
+   " /interrupt-controller" find-package if
+     push-package
+     root-phandle encode-int
+     bffffff0 encode-int encode+  1 encode-int encode+ " other-bus-reg" property
+     pop-package
+   then
+   " /scsi" find-package if
+     push-package
+     01.00.00 24.4d.00.1b " aix-id" eval
+     6380 " aix-flags" eval \ Disableable | Integrated | Configurable | Boot
+     pop-package
+     " disk" " /scsi/disk@0,0:1" $devalias
+     " cdrom" " /scsi/disk@2" $devalias
+   then
+   " /vga" find-package if
+     push-package
+     0184 " aix-flags" eval \ Disableable | Configurable | ConsoleOut
+     pop-package
+   then
+   " /isa/ide" find-package if
+     1f0 pc@ 0= if
+       delete-package
+     else
+       drop
+     then
+   then
 ;
 ['] (probe-all) to probe-all
 
@@ -63,14 +85,13 @@ fload ${BP}/cpu/ppc/prep/qemu/probemem.fth	\ Memory probing
 
 fload ${BP}/cpu/ppc/prep/residdef.fth		\ Residual data structure
 
-: get-int  ( name$ phandle -- int )
-   get-package-property  abort" Missing property"  get-encoded-int
-;
-
-: make-boot-name ;
-
+fload ${BP}/cpu/ppc/prep/aixnvram.fth              \ AIX fw-boot-device env
 fload ${BP}/cpu/ppc/prep/mkresid.fth               \ Residual data creation
 fload ${BP}/cpu/ppc/prep/encresid.fth              \ Residual data encoding
+
+\ Add drivers for supported plug-in cards
+fload ${BP}/cpu/ppc/prep/qemu/devices.fth
+fload ${BP}/cpu/ppc/prep/qemu/devalias.fth
 
 fload ${BP}/cpu/ppc/prep/fortyone.fth              \ handler for AIX booting
 

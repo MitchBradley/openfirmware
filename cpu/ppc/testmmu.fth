@@ -90,6 +90,7 @@ warning off
    init-srs
 
    use-real-mode?  if
+      601? if true exit then \ XXX stub to make 601 boot
       install-bat-handler 
       setup-real-bat-table
       clear-bats      mapping-on

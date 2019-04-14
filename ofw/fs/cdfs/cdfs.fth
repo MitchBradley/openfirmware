@@ -147,7 +147,7 @@ instance variable totoff	\ Total offset into the directory
    begin
       another-file?
    while
-      2dup file-name $=  if  2drop false exit  then
+      2dup file-name 2dup upper $=  if  2drop false exit  then
       next-file
    repeat
    2drop true

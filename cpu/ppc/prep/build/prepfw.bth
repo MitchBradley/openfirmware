@@ -59,6 +59,7 @@ fload ${BP}/cpu/ppc/cache603.fth	\ Cache synchronization
 fload ${BP}/cpu/ppc/segreg.fth	\ Segment register access
 fload ${BP}/cpu/ppc/bat.fth		\ BAT mapping register access
 fload ${BP}/cpu/ppc/scrub.fth	\ Fast memory scrubbing using "dcbz"
+fload ${BP}/cpu/ppc/scrub601.fth \ Fast memory scrubbing - 601 version 
 
 fload ${BP}/ofw/termemu/cp881-16.fth  \ ISO-Latin1 Font
 hex
@@ -147,6 +148,17 @@ fload ${BP}/ofw/core/countdwn.fth	 \ Startup countdown
 
 fload ${BP}/forth/lib/pattern.fth		\ Text string pattern matching
 fload ${BP}/ofw/core/filecmds.fth 	\ File commands: dir, del, ren, etc.
+
+fload ${BP}/cpu/ppc/prep/crc.fth        \ CCITT polynomial CRC
+fload ${BP}/cpu/ppc/prep/nvramhdr.fth   \ PReP NVRAM header
+fload ${BP}/cpu/ppc/prep/nvtypes.fth    \ PReP-specific encodings
+
+install-prep-nv
+
+stand-init: Initialize fixed vars
+    init-fixed-nv
+;
+
 
 : startup  ( -- )
    standalone?  0=  if  exit  then

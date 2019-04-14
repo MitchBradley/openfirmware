@@ -70,6 +70,10 @@ headerless
    ( tlb-params cache-params adr len )  device-name
    " cpu" device-type
 ;
+: make-601-node  ( -- )
+   " PowerPC,601" start-cpu-node
+   d# 2  d# 256  d# 64  d# 32  d# 32768  3dup  make-cache-props
+;
 : make-603-node  ( -- )
    " PowerPC,603" start-cpu-node
    d# 64  d# 128   d# 128  d# 32  d# 8192  3dup  make-cache-props
@@ -110,6 +114,10 @@ headerless
    " PowerPC,603ev" start-cpu-node
    d# 64  d# 128  d# 128  d# 32  d# 16384  3dup  make-cache-props
 ;
+: make-G4-node ( -- )
+   " PowerPC,G4" start-cpu-node
+   d# 64  d# 128   d# 128  d# 32  d# 32768  3dup  make-cache-props
+;
 : make-823-node  ( -- )
    " PowerPC,MPC823" start-cpu-node
    d# 32  d# 256   d# 32  d# 16  d# 1024   d# 64  d# 16  d# 2048  make-cache-props
@@ -137,6 +145,7 @@ defer make-cpu-extras	' noop to make-cpu-extras
    " /cpus" find-device
 
    cpu-version  case
+       1 of  make-601-node    endof
        3 of  make-603-node    endof
        4 of  make-604-node    endof
        6 of  make-603e-node   endof
@@ -148,6 +157,7 @@ defer make-cpu-extras	' noop to make-cpu-extras
    h# 50 of  make-823-node    endof
    h# 54 of  make-704-node    endof	\ proto... remove!
    h# 60 of  make-704-node    endof
+   h#  c of  make-G4-node    endof
    h# 81 of  make-8240-node   endof
    ( default ) ." make-cpu-node: Unknown CPU Version " dup . cr
    endcase

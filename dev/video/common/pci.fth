@@ -120,6 +120,7 @@ reg-props /reg-props erase			\ Clean it up
          f0 of s3-968    endof
          11 of s3-trio64 endof
          31 of s3-virge  endof
+         01 of s3-virge  endof  \ 86C375
          ( default ) -1 swap	\ Well, maybe we can't program it...
       endcase
       to variant
