@@ -110,12 +110,16 @@ char *host_os = "Darwin";
 #endif
 
 #ifdef MIPS
-char *host_cpu = "mips";
 #define START_OFFSET 8
 #define CPU_MAGIC 0x10000007
+#ifdef MIPSSIM
+char *target_cpu = "mips";
+#else
+char *host_cpu = "mips";
 #include <asm/cachectl.h>
 #ifdef __MIPSEL__
 #define HOST_LITTLE_ENDIAN
+#endif
 #endif
 #endif
 
@@ -350,7 +354,7 @@ INTERNAL long	f_ioctl();
 INTERNAL long	f_lseek();
 INTERNAL long	f_crstr();
 
-#if defined(PPCSIM) || defined (ARMSIM)
+#if defined(PPCSIM) || defined (ARMSIM) || defined(MIPSSIM)
   /* These are not INTERNAL because the simulators use then */
   long c_key();
   long s_bye();
@@ -1106,6 +1110,14 @@ main(int argc, char **argv
 		 (char *)loadaddr + memsize, argc, argv);
 	s_bye(0L);
 #endif
+
+#if defined(MIPSSIM)
+	simulate(0L, loadaddr+sizeof(header)+START_OFFSET,
+		 loadaddr, functions, (char *)loadaddr + memsize,
+		 argc, argv);
+	s_bye(0L);
+#endif
+
 	/*
 	 * Not a simulator.
 	 */
@@ -2238,7 +2250,7 @@ s_flushcache(char *adr, long len)
 	__clear_cache(adr, adr+len);
 	return 0L;
 #endif
-#if defined(__linux__) && defined(MIPS) 
+#if defined(__linux__) && defined(MIPS) && !defined(MIPSSIM)
 	extern int cacheflush(char *addr, int nbytes, int cache);
 	(void) cacheflush(adr, len, BCACHE);
 	return 0L;
