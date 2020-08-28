@@ -29,14 +29,20 @@ code syscall ( <args> call# -- <args> )
    'user syscall-vec   t9   lw
    bubble
    t9  tos             tos  addu
-   tos 0               t9   lw		\ Address of routine
 
    sp  0               $a0  lw  	\ Get some arguments
    sp  4               $a1  lw
    sp  8               $a2  lw
+   sp  12              $a3  lw
 
+   here h# 10 +  t9  $0     bne		\ Running in an emulator?
+   nop
+   here h# 14 +  $0  $0     beq
+   syscall				\ Trap into an emulator
+
+   tos 0               t9   lw		\ Address of routine
    t9  ra  jalr
-   sp  12              $a3  lw		\ Delay slot
+   nop					\ Delay slot
 
    v0   'user sysretval     sw		\ Save the result
 
