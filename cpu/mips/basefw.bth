@@ -98,7 +98,7 @@ defines: .partitions
 defines: $partition
 [then]
 
-fload ${BP}/fm/lib/pattern.fth		\ Text string pattern matching
+fload ${BP}/forth/lib/pattern.fth	\ Text string pattern matching
 fload ${BP}/ofw/core/filecmds.fth	\ File commands: dir, del, ren, etc.
 
 : ldump  (s adr len -- )
