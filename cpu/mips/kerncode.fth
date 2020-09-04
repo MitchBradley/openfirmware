@@ -830,6 +830,29 @@ code fill (s start-adr count char -- )
    sp 0c  sp   addiu
 c;
 
+code wfill  (s start-addr count word -- )
+			\ long in tos
+   sp 0  t0  lw		\ count in t0
+   sp 4  t1  lw		\ dst in t1
+   bubble
+
+   t0 1   t0  srl	\ Round down
+   t0 1   t0  sll
+
+   t0 t1  t0  addu	\ limit in t0
+   t0 t1  <>  if
+   t1 2   t1  addiu	\ (delay) increment dst
+
+      begin
+         tos   t1 -2  sh
+      t0 t1 = until
+         t1 2  t1     addiu	\ (delay) increment dst
+   then
+
+   sp 8   tos  lw
+   sp 0c  sp   addiu
+c;
+
 code lfill (s start-adr count long -- )
 			\ long in tos
    sp 0  t0  lw		\ count in t0
@@ -852,6 +875,50 @@ code lfill (s start-adr count long -- )
 
    sp 8   tos  lw
    sp 0c  sp   addiu
+c;
+
+\ Find the first occurence of bvalue, returning the residual string
+code bscan  (s adr len bvalue -- adr' len' )
+                           \ bvalue in tos
+   sp 0  t0  lw            \ len in t0
+   sp 4  t1  lw            \ adr in t1
+   sp 4  sp  addiu         \ Drop one value from stack
+
+   begin
+      t0 $0 = if nop       \ End of the string
+         t1  sp 0  sw
+         $0  tos   move
+         next
+      then
+
+      t1 0   t2  lb        \ byte now in t2
+      t0 -1  t0  addiu     \ len--
+   t2 tos = until          \ Found the bvalue
+      t1 1   t1  addiu     \ (delay) adr++
+
+   t1 -1  t1    addiu      \ Undo the address addition
+   t1     sp 0  sw
+   t0 1   tos   addiu      \ len, with decrement undone
+c;
+
+\ Skip initial occurrences of bvalue, returning the residual length
+code bskip  (s adr len bvalue -- residue )
+    tos   t2  move         \ bvalue in t2
+    sp 0  tos lw           \ len in tos
+    sp 4  t1  lw           \ adr in t1
+    sp 8  sp  addiu        \ Drop arguments from stack
+
+    begin
+       tos $0 = if nop     \ End of the string
+          next
+       then
+
+       t1 0    t3   lb     \ byte now in t3
+       tos -1  tos  addiu  \ len--
+    t3 t2 <> until         \ Different from bvalue
+       t1 1    t1   addiu  \ (delay) adr++
+
+    tos 1  tos  addiu      \ len, with decrement undone
 c;
 
 code noop (s -- )  c;
