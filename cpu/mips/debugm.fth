@@ -17,7 +17,7 @@ vocabulary bug   bug also definitions
 nuser 'debug   \ code field for high level trace
 nuser <ip      \ lower limit of ip
 nuser ip>      \ upper limit of ip
-nuser cnt      \ how many times thru debug next
+nuser cntx     \ how many times thru debug next
 
 \ Since we use a shared "next" routine, slow-next and fast-next are no-op's
 alias slow-next 2drop  ( high low -- )
@@ -63,12 +63,12 @@ label debnext
       bubble
       ip t0   t1  subu
       t1 0<= if  nop
-         'user cnt   t0  lw
+         'user cntx  t0  lw
 	 2           t1  li
          t0 1        t0  addiu
-	 t0   'user cnt  sw
+	 t0   'user cntx sw
 	 t0  t1  = if  nop
-            $0               'user cnt  sw
+            $0               'user cntx sw
 
             h# 8ea80000           t0    li      \ "ip 0  t0  lw"
             t0                    np 0  sw
