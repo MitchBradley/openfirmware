@@ -424,6 +424,11 @@ c;
 code (endof)    (s -- )   take-branch   c;
 code (endcase)  (s n -- )   sp  tos  pop   c;
 
+\ ($endof) is the same as branch, and ($endcase) is the same as drop,
+\ but redefining them this way makes the decompiler much easier.
+code ($endof)    (s -- )   take-branch   c;
+code ($endcase)  (s n -- )   sp  tos  pop   c;
+
 meta-base
 assembler
 mlabel dofalse
