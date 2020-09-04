@@ -115,7 +115,7 @@ fload ${BP}/ofw/core/filecmds.fth	\ File commands: dir, del, ren, etc.
 ;
 
 [ifndef] no-heads
-.( --- Saving basefw.dic --- )  cr "" basefw.dic save-forth
+.( --- Saving basefw.dic --- )  cr " basefw.dic" $save-forth
 [then]
 
 \ LICENSE_BEGIN
