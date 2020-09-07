@@ -1,0 +1,226 @@
+purpose: Load file for QEMU MIPS PC
+\ See license at end of file
+
+dictionary: ${BP}/cpu/mips/build/basefw.dic
+command: &mipsfth &dictionary &this
+build-now
+
+" fw.tag" r/w create-file drop  tag-file !
+
+create rom-based?
+
+\ true to stand-init-debug?
+true ' auto-boot? set-config-int-default
+true ' fcode-debug? set-config-int-default
+true ' local-mac-address? set-config-int-default
+" com1" ' output-device set-config-string-default
+" com1" ' input-device set-config-string-default
+
+fload ${BP}/cpu/mips/ksegaddr.fth
+fload ${BP}/cpu/mips/qemu/physaddr.fth
+fload ${BP}/cpu/mips/virtaddr.fth
+
+\ Diag uart needs these
+: pc@  ( offset -- n )  isa-io-base kseg1 + + rb@  ;
+: pc!  ( n offset -- )  isa-io-base kseg1 + + rb!  ;
+
+\ ne2000 needs these
+: pw@  ( offset -- n )  isa-io-base kseg1 + + rw@  ;
+: pw!  ( n offset -- )  isa-io-base kseg1 + + rw!  ;
+
+fload ${BP}/dev/diaguart.fth		\ Diagnostic driver for serial port
+fload ${BP}/forth/lib/sysuart.fth	\ Plug UART routines into key and emit
+
+h# 1000 to pagesize
+d# 12   to pageshift
+
+fload ${BP}/cpu/mips/cache.fth		\ Cache synchronization/flushing
+: pcicache-wbinv  ( devadr len -- )  2drop  ;
+: pcicache-inv  ( devadr len -- )  2drop  ;
+fload ${BP}/cpu/mips/rootnode.fth	\ Root node mapping
+
+dev /
+   " Emulated MIPS PC" model
+   " MIPS" encode-string  " architecture" property
+   " qemu,mips" +compatible
+   " qemu,mipsel" +compatible
+
+   1 encode-int  " #size-cells"  property
+   " dma-ranges" delete-property
+device-end
+
+: (cpu-arch  ( -- adr len )
+   " architecture" root-phandle  get-package-property  drop
+   get-encoded-string
+;
+' (cpu-arch to cpu-arch
+
+fload ${BP}/ofw/core/fdt.fth
+
+h#   1.0000 constant initial-heap-size
+fload ${BP}/cpu/mips/boot.fth		\ Low-level startup code
+
+\ Memory management services
+fload ${BP}/ofw/core/clntphy1.fth    \ client services for memory
+fload ${BP}/ofw/core/memlist.fth     \ Resource list common routines
+fload ${BP}/ofw/core/showlist.fth	\ Linked list display tool
+fload ${BP}/ofw/core/allocph1.fth	\ S Physical memory allocator
+fload ${BP}/ofw/core/availpm.fth	\ Available memory list
+fload ${BP}/ofw/core/allocmor.fth 	\ S Allow alloc-mem to use more memory
+
+: (initial-heap)  ( -- adr len )  sp0 @ ps-size -  limit  tuck -  ;
+['] (initial-heap) to initial-heap
+
+variable bank-mask
+1 bank-mask !
+fload ${BP}/cpu/mips/probemem.fth  \ Memory probing
+stand-init: Probing memory
+   " probe" memory-node @ $call-method
+;
+
+\ Load file format handlers
+
+: call32 ;  defer .subname
+fload ${BP}/ofw/core/allocsym.fth    \ Allocate memory for symbol table
+fload ${BP}/ofw/core/symcif.fth
+fload ${BP}/ofw/core/symdebug.fth
+: release-load-area  ( boundary-adr -- )  drop  ;
+fload ${BP}/ofw/elf/elf.fth
+fload ${BP}/ofw/elf/elfdebug.fth
+' 2drop is elf-map-in
+
+\ File system
+fload ${BP}/cpu/mips/zipcrc.fth		\ Assembly portion of CRC calculation
+fload ${BP}/forth/lib/crc32.fth		\ High-level portion of CRC calculation
+\needs unix-seconds>  fload ${BP}/ofw/fs/unixtime.fth   \ Unix time calculation
+\needs ($crc16)       fload ${BP}/forth/lib/crc16.fth
+
+fload ${BP}/ofw/fs/fatfs/fdisk2.fth	\ Partition map administration
+
+[ifdef]  use-ufs
+support-package: ufs-file-system
+   fload ${BP}/ofw/fs/ufs/ufs.fth	\ Unix file system
+end-support-package
+[then]
+
+support-package: ext2-file-system
+   fload ${BP}/ofw/fs/ext2fs/ext2fs.fth	\ Linux file system
+end-support-package
+
+support-package: dropin-file-system
+   fload ${BP}/ofw/fs/dropinfs.fth	\ Dropin file system
+end-support-package
+
+support-package: nfs
+   fload ${BP}/ofw/fs/nfs/loadpkg.fth
+end-support-package
+
+fload ${BP}/cpu/x86/pc/nullnv.fth
+stand-init: Null-NVRAM
+   " /null-nvram" open-dev  to nvram-node
+   ['] init-config-vars catch drop
+;
+
+0 value keyboard-ih
+0 value screen-ih
+fload ${BP}/ofw/core/muxdev.fth          \ I/O collection/distribution device
+
+\ Device Tree
+fload ${BP}/cpu/mips/qemu/devices.fth
+
+devalias seriala /isa@10000000/serial@i3f8
+devalias com1 /isa@10000000/serial@i3f8
+devalias mouse /isa@10000000/8042@i60/mouse@aux
+devalias net /isa@10000000/ethernet@i300
+devalias disk /isa@10000000/ide/disk@0
+devalias c /isa@10000000/ide/disk@0
+devalias d /isa@10000000/ide/disk@1
+devalias dropins /flash/dropins
+devalias rom /dropin-fs
+devalias screen /ega-text
+
+: stand-init-io  ( -- )
+   stand-init-io
+   inituarts  install-uart-io \ install-abort
+;
+
+: com1  ( -- adr len )  " com1"  ;
+' com1 to fallback-device
+
+fload ${BP}/cpu/mips/bonito/excption.fth
+fload ${BP}/cpu/mips/bonito/intr.fth
+
+: probe-all  ( -- )
+  " probe-" do-drop-in
+  " probe+" do-drop-in
+;
+
+kseg0 to vector-base
+
+: startup  ( -- )
+   standalone?  0=  if  exit  then
+
+   hex
+   warning on
+   only forth also definitions
+
+   " Install alarm" ?type  install-alarm
+
+   auto-banner?  if
+      " Probing" ?type  probe-all
+      " Install console" ?type  install-console
+      " Install mux" ?type  install-mux-io
+      banner
+   then
+
+   #line off
+
+   auto-boot
+
+   quit
+;
+
+fload ${BP}/ofw/core/countdwn.fth       \ Auto-boot countdown
+
+h# 10000 constant /fdt-max
+: init-program  ( -- )
+   init-program
+   -2 to $a0
+   /fdt-max alloc-mem /fdt-max flatten-device-tree to $a1
+;
+
+" c:\vmlinux"
+   ' boot-device  set-config-string-default
+" earlycon=uart8250,mmio32,0x140003f8,115200n8 console=ttyS0,115200"
+   ' boot-file  set-config-string-default
+
+install-rom-cold
+
+tag-file @ fclose  tag-file off
+
+.( --- Saving fw.dic ...)  " fw.dic" $save-forth cr
+
+\ LICENSE_BEGIN
+\ Copyright (c) 2000-2001 FirmWorks
+\ Copyright (c) 2020 Lubomir Rintel <lkundrak@v3.sk>
+\
+\ Permission is hereby granted, free of charge, to any person obtaining
+\ a copy of this software and associated documentation files (the
+\ "Software"), to deal in the Software without restriction, including
+\ without limitation the rights to use, copy, modify, merge, publish,
+\ distribute, sublicense, and/or sell copies of the Software, and to
+\ permit persons to whom the Software is furnished to do so, subject to
+\ the following conditions:
+\
+\ The above copyright notice and this permission notice shall be
+\ included in all copies or substantial portions of the Software.
+\
+\ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+\ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+\ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+\ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+\ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+\ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+\ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+\
+\ LICENSE_END

@@ -1,0 +1,69 @@
+purpose: Memory startup code for QEMU MIPS PC
+\ See license at end of file
+
+command: &builder &this
+build-now
+
+\needs start-assembling  fload ${BP}/cpu/mips/asmtools.fth
+\needs write-dropin      fload ${BP}/forth/lib/mkdropin.fth
+
+\ create debug-reset
+
+fload ${BP}/cpu/mips/ksegaddr.fth
+fload ${BP}/cpu/mips/qemu/physaddr.fth
+fload ${BP}/cpu/mips/qemu/report.fth
+
+start-assembling
+
+label my-entry
+   0 ,                          \ To be patched later
+   nop
+end-code
+
+label start-memory  ( -- v0: RAM size )
+   ra s7 move
+
+   ascii M ?report
+
+   \ Return to reset dropin
+   /ram-bank kseg0 + v0  set
+
+   s7  jr
+   nop
+
+end-code
+
+also mips-assembler
+start-memory  my-entry  put-branch
+previous
+
+end-assembling
+
+writing start.di
+asm-base  here over -  0  " start" write-dropin
+ofd @ fclose
+
+\ LICENSE_BEGIN
+\ Copyright (c) 2001 FirmWorks
+\ Copyright (c) 2020 Lubomir Rintel <lkundrak@v3.sk>
+\
+\ Permission is hereby granted, free of charge, to any person obtaining
+\ a copy of this software and associated documentation files (the
+\ "Software"), to deal in the Software without restriction, including
+\ without limitation the rights to use, copy, modify, merge, publish,
+\ distribute, sublicense, and/or sell copies of the Software, and to
+\ permit persons to whom the Software is furnished to do so, subject to
+\ the following conditions:
+\
+\ The above copyright notice and this permission notice shall be
+\ included in all copies or substantial portions of the Software.
+\
+\ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+\ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+\ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+\ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+\ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+\ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+\ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+\
+\ LICENSE_END
