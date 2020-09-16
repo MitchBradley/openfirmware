@@ -131,7 +131,8 @@ d# 25 constant #ega-lines
 : ega-draw-logo  ( line# addr width height -- )  2drop 2drop  ;
 
 : ega-install  ( -- )
-   h# b8000 /ega  " map-in" $call-parent  to ega
+   h# b8000  [ifdef] isa-mem-base  isa-mem-base +  [then]  /ega
+   " map-in" $call-parent  to ega
 
    set-attributes
 
