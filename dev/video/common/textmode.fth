@@ -120,8 +120,8 @@ create mode12-table
    place-string				\ CRT registers
 
 
-: plane-mode     ( -- )  6 4 seq!  4 6 grf!  ;
-: odd/even-mode  ( -- )  2 4 seq!  e 6 grf!  ;
+: plane-mode     ( -- )  6 4 seq!  4 6 grf!   0 5 grf!  ;
+: odd/even-mode  ( -- )  2 4 seq!  e 6 grf!  10 5 grf!  ;
 [ifdef] testing
 : read-font   ( -- )  plane-mode     2 4 grf!  ;
 : read-text   ( -- )  plane-mode     0 4 grf!  ;
