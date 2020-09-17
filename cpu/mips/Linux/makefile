@@ -2,6 +2,8 @@
 # Copyright 1997 FirmWorks. All rights reserved.
 #
 CC      = mipsel-linux-gnu-gcc-4.3
+LD	= mipsel-linux-gnu-ld
+OBJCOPY	= mipsel-linux-gnu-objcopy
 
 CFLAGS  = -O -g -D__linux__ -DMIPS -DHOSTMIPS
 LFLAGS  = -Xlinker -static -static-libgcc
@@ -18,6 +20,15 @@ all: forth
 wrapper.o: ${BP}/forth/wrapper/wrapper.c
         ${CC} ${CFLAGS} -c ${BP}/forth/wrapper/wrapper.c
 
+xinflate.lo: ${ZIPDIR}/inflate.c
+	${CC} -c ${CFLAGS} -mabi=32 -mfp32 -mips1 -EL -O $< -o $@
+
+xinflate.o: xinflate.lo
+	${LD} -T inflate.ld -EL -G0 -N $< -o $@
+
+../build/inflate.bin: xinflate.o
+	${OBJCOPY} -O binary $< $@
+
 %.o: ${WRDIR}/%.c
         ${CC} -c ${CFLAGS} $< -o $@
 
@@ -28,7 +39,7 @@ forth: ${OBJS}
         ${CC} $(LFLAGS) -o $@ ${OBJS}
 
 clean:
-        @rm -f forth *.o
+	@rm -f forth *.o *.lo
 
 install: forth
         cp forth ${BP}/bin/mips/`uname|tr A-Z a-z`/forth
