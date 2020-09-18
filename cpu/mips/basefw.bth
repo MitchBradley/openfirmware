@@ -25,11 +25,11 @@ fload ${BP}/cpu/mips/centry.fth		\ Low-level client entry and exit
 fload ${BP}/ofw/confvar/loadcv.fth	\ Configuration variables
 fload ${BP}/ofw/core/silentmd.fth	\ NVRAM variable silent-mode?
 
-fload ${BP}/ofw/termemu/loadfb.fth	\ Frame buffer support
-fload ${BP}/ofw/termemu/difont.fth	\ Get font from a dropin module
-
 fload ${BP}/ofw/termemu/fb8-ops.fth	\ 8-bit frame buffer primitives
 \ fload ${BP}/cpu/mips/fb8-ops.fth	\ 8-bit frame buffer primitives
+
+fload ${BP}/ofw/termemu/loadfb.fth	\ Frame buffer support
+fload ${BP}/ofw/termemu/difont.fth	\ Get font from a dropin module
 
 fload ${BP}/ofw/gui/alert.fth		\ Basic dialogs and alerts
 fload ${BP}/dev/stringio.fth		\ Output diversion
