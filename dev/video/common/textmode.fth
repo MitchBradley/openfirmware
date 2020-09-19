@@ -120,7 +120,7 @@ create mode12-table
    place-string				\ CRT registers
 
 
-: plane-mode     ( -- )  6 4 seq!  c 6 grf!  ;
+: plane-mode     ( -- )  6 4 seq!  4 6 grf!  ;
 : odd/even-mode  ( -- )  2 4 seq!  e 6 grf!  ;
 [ifdef] testing
 : read-font   ( -- )  plane-mode     2 4 grf!  ;
@@ -141,13 +141,13 @@ create mode12-table
    odd/even-mode  3 2 seq!
 ;
 
-0 value ega
+0 value vga
 
 : fill-text  ( len value -- )
-   ega rot 2*  bounds  do  dup i c!  2 +loop  drop
+   vga rot 2*  bounds  do  dup i c!  2 +loop  drop
 ;
 : fill-attrs  ( len value -- )
-   ega rot 2*  bounds  do  dup i 1+ c!  2 +loop  drop
+   vga rot 2*  bounds  do  dup i 1+ c!  2 +loop  drop
 ;
 defer pc-font  ' default-font to pc-font
 : load-vga-font  ( -- )
@@ -156,7 +156,7 @@ defer pc-font  ' default-font to pc-font
    if  true " Incompatible font"  type abort  then       ( adr -height )
    write-font
    negate  swap  ( 2r> ) r> r>  bounds   ?do             ( height adr )
-      2dup  ega i h# 20 * +  rot  move         ( height adr )
+      2dup  vga i h# 20 * +  rot  move         ( height adr )
       over +                                   ( height adr' )
    loop                                        ( height adr )
    2drop                                       ( )
@@ -186,23 +186,26 @@ d# 25 constant #text-rows
 
 external
 
+: map-vga-mem
+   h# 000a.0000 0  h# 8200.0000  h# 10000  " map-in" $call-parent  to vga
+;
+
 : text-mode3  ( -- )
    io-base -1 =  if  map-io-regs  then
    mode2+/3 set-vga-mode
    ext-textmode
-\  h# c00b.8000 0  h# 8200.0000  h# 8000  " map-in" $call-parent  to ega
-   h# 000b.8000 0  h# 8200.0000  h# 8000  " map-in" $call-parent  to ega
+   vga 0 =  if  map-vga-mem  then
    load-vga-font
    #text-rows #text-columns  *  dup bl fill-text   7 fill-attrs
 [ifdef] strict-ega
    ega-colors  0  d# 64  (set-colors)
 [then]
 ;
-0 value vga
+
 : graphics-mode12  ( -- )
    io-base -1 =  if  map-io-regs  then
    mode12-table set-vga-mode
-   h# 000a.0000 0  h# 8200.0000  h# 10000  " map-in" $call-parent  to vga
+   vga 0 =  if  map-vga-mem  then
 ;
 
 
