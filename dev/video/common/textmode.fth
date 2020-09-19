@@ -187,7 +187,9 @@ d# 25 constant #text-rows
 external
 
 : map-vga-mem
-   h# 000a.0000 0  h# 8200.0000  h# 10000  " map-in" $call-parent  to vga
+   h# 000a.0000 0
+   [ifndef] isa-mem-base  h# 8200.0000  [then]
+   h# 10000  " map-in" $call-parent  to vga
 ;
 
 : text-mode3  ( -- )
