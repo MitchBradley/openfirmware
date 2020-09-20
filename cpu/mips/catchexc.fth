@@ -115,7 +115,7 @@ code (restart  ( -- )
 
    \ Restore registers
    here origin- to (restart-loc
-   1.0001  k1  set	\ Will be address of cpu-state (force 2 instructions)
+   h# 1.0001  k1  set	\ Will be address of cpu-state (force 2 instructions)
 
    $0  k1 addr %state-valid cpu-state -  sd	\ Unlock cpu-state
 
@@ -225,7 +225,7 @@ c;
 \               3 if breakpoint exception
 label save-state  ( k0: exception# -- )
    here origin- to save-state-loc
-   1.0001  k1  set	\ Will be address of cpu-state (force 2 instructions)
+   h# 1.0001  k1  set	\ Will be address of cpu-state (force 2 instructions)
    k0  k1  addr exception# cpu-state -  sd	\ Save exception#
 
    k1  addr %state-valid cpu-state -    k0   ld
