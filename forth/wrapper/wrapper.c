@@ -114,6 +114,9 @@ char *host_cpu = "mips";
 #define START_OFFSET 8
 #define CPU_MAGIC 0x10000007
 #include <asm/cachectl.h>
+#ifdef __MIPSEL__
+#define HOST_LITTLE_ENDIAN
+#endif
 #endif
 
 #ifdef CKERNEL
