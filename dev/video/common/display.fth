@@ -10,6 +10,10 @@ headers
 
 : display-install  ( -- )
    init
+
+   map-frame-buffer
+   frame-buffer-adr /fb 0f fill		\ Apple does not init frame buffer...
+
    default-font set-font
    width height  over char-width /  over char-height /
    /scanline  depth  " fb-install" eval
