@@ -100,25 +100,6 @@ code ge-return  ( -- )
 
 end-code
 
-\ We implement this in the following way, instead of just having
-\ a value named getmsecs, so that other tasks can use get-msecs
-\ This way is faster too, since the "+!" in the interrupt handler
-\ routine is faster than "to".
-variable msec-counter
-[ifdef] local
-: getmsecs  ( -- n )  main-task msec-counter local @  ;
-[else]
-: getmsecs  ( -- n )  msec-counter @  ;
-[then]
-
-0 value tick-increment
-
-: intr-timer  ( -- )
-   ms/tick msec-counter +!
-   check-alarm
-   count@ tick-increment + compare!
-;
-
 string-array exception-code
 ," Interrupt"
 ," TLB modified exception"
@@ -155,6 +136,7 @@ defer intr-hw1  ' noop to intr-hw1
 defer intr-hw2  ' noop to intr-hw2
 defer intr-hw3  ' noop to intr-hw3
 defer intr-hw4  ' noop to intr-hw4
+defer intr-timer  ' noop to intr-timer
 
 : dispatch-interrupts  ( -- )
    cause@  8 >> h# ff and
@@ -245,13 +227,6 @@ label ge-preamble  ( -- )
    ip base ip addu
 c;
 
-: set-tick-limit  ( #msecs -- )
-   dup to ms/tick
-   ms-factor * dup to tick-increment 
-   count@ + compare!
-   sr@ h# 8000 or sr!
-;
-
 : (Disable-interrupts)  ( -- )  sr@ h# ffff.fffe and sr!  ;
 ' (disable-interrupts) to disable-interrupts
 : (enable-interrupts)  ( -- )  sr@ 1 or sr!  ;
@@ -294,7 +269,7 @@ defer cache-handler ' default-handler to cache-handler
    [ previous ]
 ;
 : install-alarm  ( -- )
-   ['] getmsecs to get-msecs
+   ['] (get-msecs) to get-msecs
    /intstack alloc-mem to intsave
    intsave /intstack erase	\ Paranoia
    disable-interrupts
