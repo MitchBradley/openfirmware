@@ -1,6 +1,8 @@
 purpose: Use the MIPS R4000 count/compare registers for the tick interrupt
 \ See license at end of file
 
+0 value tick-counts
+
 : tick-interrupt  ( level -- )
    drop
    tick-counts compare@ +  dup compare!	  ( next-count )  \ Setup next tick
@@ -14,7 +16,6 @@ purpose: Use the MIPS R4000 count/compare registers for the tick interrupt
    check-alarm
 ;
 
-0 value tick-counts
 : (set-tick-limit)  ( #msecs -- )
    to ms/tick
    ms/tick ms-factor *  to tick-counts

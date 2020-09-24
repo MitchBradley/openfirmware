@@ -1,40 +1,35 @@
+purpose: CPU node for QEMU MIPS PC
 \ See license at end of file
-purpose: Package methods for display controller
 
 hex
-headers
 
-" display"                      device-type
-" ISO8859-1" encode-string    " character-set" property
-0 0  encode-bytes  " iso6429-1983-colors"  property
+root-device
 
-: display-install  ( -- )
-   init
+new-device
+   " cpu-clock" device-name
+   " fixed-clock" +compatible
+   0 " #clock-cells" integer-property
+   d# 16.000.000 " clock-frequency" integer-property
+finish-device
 
-   map-frame-buffer
-   frame-buffer-adr /fb 0f fill		\ Apple does not init frame buffer...
+new-device
+   " cpus" device-name
+   1 " #address-cells" integer-property
+   0 " #size-cells" integer-property
 
-   default-font set-font
-   width height  over char-width /  over char-height /
-   /scanline  depth  " fb-install" eval
-   init-hook
-;
+   new-device
+      " cpu" device-name
+      " cpu" device-type
+      0 " reg" integer-property
+      " /cpu-clock" encode-phandle " clocks" property \ Linux needs this
+   finish-device
+finish-device
 
-\ display-remove is elsewhere (e.g. init.fth) because it has no
-\ generic semantics with respect to the FB8 package.
+device-end
 
-: display-selftest  ( -- failed? )  false  ;
-
-fload ${BP}/dev/video/common/rectangl.fth
-
-headers
-
-' display-install  is-install
-' display-remove   is-remove
-' display-selftest is-selftest
 \ LICENSE_BEGIN
-\ Copyright (c) 2006 FirmWorks
-\ 
+\ Copyright (c) 2020 Lubomir Rintel <lkundrak@v3.sk>
+\
 \ Permission is hereby granted, free of charge, to any person obtaining
 \ a copy of this software and associated documentation files (the
 \ "Software"), to deal in the Software without restriction, including
@@ -42,10 +37,10 @@ headers
 \ distribute, sublicense, and/or sell copies of the Software, and to
 \ permit persons to whom the Software is furnished to do so, subject to
 \ the following conditions:
-\ 
+\
 \ The above copyright notice and this permission notice shall be
 \ included in all copies or substantial portions of the Software.
-\ 
+\
 \ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 \ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 \ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND

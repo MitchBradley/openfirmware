@@ -25,11 +25,11 @@ fload ${BP}/cpu/mips/centry.fth		\ Low-level client entry and exit
 fload ${BP}/ofw/confvar/loadcv.fth	\ Configuration variables
 fload ${BP}/ofw/core/silentmd.fth	\ NVRAM variable silent-mode?
 
-fload ${BP}/ofw/termemu/loadfb.fth	\ Frame buffer support
-fload ${BP}/ofw/termemu/difont.fth	\ Get font from a dropin module
-
 fload ${BP}/ofw/termemu/fb8-ops.fth	\ 8-bit frame buffer primitives
 \ fload ${BP}/cpu/mips/fb8-ops.fth	\ 8-bit frame buffer primitives
+
+fload ${BP}/ofw/termemu/loadfb.fth	\ Frame buffer support
+fload ${BP}/ofw/termemu/difont.fth	\ Get font from a dropin module
 
 fload ${BP}/ofw/gui/alert.fth		\ Basic dialogs and alerts
 fload ${BP}/dev/stringio.fth		\ Output diversion
@@ -81,6 +81,8 @@ support-package: iso9660-file-system
    fload ${BP}/ofw/fs/cdfs/loadpkg.fth	\ ISO 9660 CD-ROM file system reader
 end-support-package
 
+fload ${BP}/ofw/disklabel/gpttools.fth
+
 support-package: disk-label
    fload ${BP}/ofw/disklabel/loadpkg.fth	\ Disk label package
 end-support-package
@@ -96,7 +98,7 @@ defines: .partitions
 defines: $partition
 [then]
 
-fload ${BP}/fm/lib/pattern.fth		\ Text string pattern matching
+fload ${BP}/forth/lib/pattern.fth	\ Text string pattern matching
 fload ${BP}/ofw/core/filecmds.fth	\ File commands: dir, del, ren, etc.
 
 : ldump  (s adr len -- )
@@ -115,7 +117,7 @@ fload ${BP}/ofw/core/filecmds.fth	\ File commands: dir, del, ren, etc.
 ;
 
 [ifndef] no-heads
-.( --- Saving basefw.dic --- )  cr "" basefw.dic save-forth
+.( --- Saving basefw.dic --- )  cr " basefw.dic" $save-forth
 [then]
 
 \ LICENSE_BEGIN

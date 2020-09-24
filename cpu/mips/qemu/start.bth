@@ -1,40 +1,52 @@
+purpose: Memory startup code for QEMU MIPS PC
 \ See license at end of file
-purpose: Package methods for display controller
 
-hex
-headers
+command: &builder &this
+build-now
 
-" display"                      device-type
-" ISO8859-1" encode-string    " character-set" property
-0 0  encode-bytes  " iso6429-1983-colors"  property
+\needs start-assembling  fload ${BP}/cpu/mips/asmtools.fth
+\needs write-dropin      fload ${BP}/forth/lib/mkdropin.fth
 
-: display-install  ( -- )
-   init
+\ create debug-reset
 
-   map-frame-buffer
-   frame-buffer-adr /fb 0f fill		\ Apple does not init frame buffer...
+fload ${BP}/cpu/mips/ksegaddr.fth
+fload ${BP}/cpu/mips/qemu/physaddr.fth
+fload ${BP}/cpu/mips/qemu/report.fth
 
-   default-font set-font
-   width height  over char-width /  over char-height /
-   /scanline  depth  " fb-install" eval
-   init-hook
-;
+start-assembling
 
-\ display-remove is elsewhere (e.g. init.fth) because it has no
-\ generic semantics with respect to the FB8 package.
+label my-entry
+   0 ,                          \ To be patched later
+   nop
+end-code
 
-: display-selftest  ( -- failed? )  false  ;
+label start-memory  ( -- v0: RAM size )
+   ra s7 move
 
-fload ${BP}/dev/video/common/rectangl.fth
+   ascii M ?report
 
-headers
+   \ Return to reset dropin
+   /ram-bank kseg0 + v0  set
 
-' display-install  is-install
-' display-remove   is-remove
-' display-selftest is-selftest
+   s7  jr
+   nop
+
+end-code
+
+also mips-assembler
+start-memory  my-entry  put-branch
+previous
+
+end-assembling
+
+writing start.di
+asm-base  here over -  0  " start" write-dropin
+ofd @ fclose
+
 \ LICENSE_BEGIN
-\ Copyright (c) 2006 FirmWorks
-\ 
+\ Copyright (c) 2001 FirmWorks
+\ Copyright (c) 2020 Lubomir Rintel <lkundrak@v3.sk>
+\
 \ Permission is hereby granted, free of charge, to any person obtaining
 \ a copy of this software and associated documentation files (the
 \ "Software"), to deal in the Software without restriction, including
@@ -42,10 +54,10 @@ headers
 \ distribute, sublicense, and/or sell copies of the Software, and to
 \ permit persons to whom the Software is furnished to do so, subject to
 \ the following conditions:
-\ 
+\
 \ The above copyright notice and this permission notice shall be
 \ included in all copies or substantial portions of the Software.
-\ 
+\
 \ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 \ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 \ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND

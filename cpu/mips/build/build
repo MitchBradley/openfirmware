@@ -1,2 +1,0 @@
-#!/bin/sh
-qemu-mipsel ../Linux/build $@

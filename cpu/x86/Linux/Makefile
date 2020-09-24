@@ -80,5 +80,20 @@ armforth: ${ARMSIMOBJS}
 armforth.trace: ${ARMTRACEOBJS}
 	${CC} ${LFLAGS} ${ARMTRACEOBJS}  -o $@
 
+# MIPS simulator wrapper build rules
+
+MIPSDIR = ${BP}/cpu/mips
+MIPSCFLAGS = -g ${MFLAGS} -DMIPSSIM -DTARGET_MIPS -DMIPS -DSIMNEXT
+MIPSSIMOBJS = mipswrapsim.o mipssim.o logger.o ${ZIPOBJS}
+
+%.o: ${MIPSDIR}/%.c
+	${CC} -c ${MIPSCFLAGS} $< -o $@
+
+mipswrapsim.o: ${WRDIR}/wrapper.c
+	${CC} -c ${MIPSCFLAGS} -c $< -o $@
+
+mipsfth: ${MIPSSIMOBJS}
+	${CC} -Wall ${LFLAGS} ${MIPSSIMOBJS} -o $@
+
 clean:
-	@rm -f forth x86forth armforth *.o *.lo *~ inflate.bin
+	@rm -f forth x86forth armforth mipsfth *.o *.lo *~ inflate.bin

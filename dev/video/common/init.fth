@@ -25,9 +25,6 @@ headers
    set-dac-colors		\ Set up initial color map
    video-on			\ Turn on video
    unmap-io-regs		\ Disables IO registers
-
-   map-frame-buffer
-   frame-buffer-adr /fb 0f fill		\ Apple does not init frame buffer...
 ;
 
 : display-remove  ( -- )

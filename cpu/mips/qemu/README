@@ -1,0 +1,24 @@
+Open Firmware for Emulated MIPS PC
+==================================
+
+This builds an image that works with QEMU "mips" little-endian virtual
+machine.
+
+Note that it is actually not really useful for anything other than
+checking that cpu/mips can still build a working firmware image.
+
+The machine essentially consists of ye olde IBM PC peripherals attached
+to a ISA bridge that routes memory accesses to 0x10000000 and I/O port
+accesses to 0x14000000. The console muxes the serial port, i8082 keyboard
+and VGA screen in text mode (the emulated graphics card is a very basic
+VGA, framebuffer is not available).
+
+Linux (as of 5.9) doesn't really support the machine mainly because drivers
+for the original PC hardware are about the oldest ones and many don't bind
+to device tree nodes. If you still want to try it, run:
+
+  $ qemu-system-mips64el -cpu MIPS64R2-generic -M mips \
+      -bios mipsel_bios.bin -serial stdio
+
+Lubomir Rintel
+2020-09-24
