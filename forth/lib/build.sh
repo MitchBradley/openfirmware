@@ -37,8 +37,9 @@ test -n "$BP" || {
 test -n "$HOSTDIR" || {
     OSNAME=`uname`
     CPUNAME=`${BP}/forth/lib/hostcpu.sh`
+    HOSTDIR=${BP}/cpu/${CPUNAME}/${OSNAME}
 }
-export HOSTDIR=${BP}/cpu/${CPUNAME}/${OSNAME}
+export HOSTDIR
 
 command=build
 

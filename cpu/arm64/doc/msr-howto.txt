@@ -1,0 +1,17 @@
+msr-gen.pl will take doc/msr.txt as input and generate the files msr-def.h,
+msr-decode.c, msr-def.fth, msr-decode.fth, and msr.fth.
+
+Note that the contents of msr.txt comes from Oban Exception Model.  There are two blocks of contents:
+     3.10.3 Instructions for Accessing Special Purpose Registers
+and  3.10.8 Access mechanisms to System Registers
+
+Cut and paste the text from the tables in those sections and put it into msr.txt and then:
+
+1) Remove the page footer information.
+
+2) There are regiseters with / in their names, our guess is that this means
+   the registers have two names.  One with the text just before the / and
+   the other with text just after the /.  E.g., SPSR_hyp/EL2 -> SPSR_HYP
+   and SPSR_EL2.
+
+3) Run ./msr-gen.pl and review the output.

@@ -19,6 +19,11 @@ user-size-t constant user-size
 /n + dup user saved-ip
 /n + dup user saved-rp
 /n + dup user saved-sp
+   \ ARM64 saves TOS, LP (Locals Pointer) and SSP (System Stack Pointer)
+64\ /n + dup user saved-tos
+64\ /n + dup user saved-lp
+64\ /n + dup user saved-ssp
+/n + dup user this-task
 [then]
 
 \ next 2 user variables are used for booting
@@ -59,7 +64,7 @@ nuser rp0          \ initial return stack
 
 headerless
 \ This is the beginning of the initialization chain
-: init  ( -- )  up@ link !  ;	\ Initially, only one task is active
+: init  ( -- )  up@ link token!  ;	\ Initially, only one task is active
 headers
 \ LICENSE_BEGIN
 \ Copyright (c) 2006 FirmWorks

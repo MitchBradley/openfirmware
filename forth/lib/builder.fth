@@ -221,6 +221,7 @@ also macros definitions
 : 68kforth    ( -- $ )  " ${HOSTDIR}/68kforth"  ;
 : armforth    ( -- $ )  " ${HOSTDIR}/armforth"  ;
 : arm32rforth ( -- $ )  " ${HOSTDIR}/arm32rforth"  ;
+: arm64forth  ( -- $ )  " ${HOSTDIR}/arm64forth"  ;
 : cforth      ( -- $ )  " ${HOSTDIR}/cforth"  ;
 : builder     ( -- $ )  " ${HOSTDIR}/forth ${HOSTDIR}/../build/builder.dic"  ;
 : tokenize    ( -- $ )  " ${HOSTDIR}/forth ${HOSTDIR}/../build/builder.dic"  ;
@@ -292,6 +293,7 @@ defer handle-log-file  ( name$ -- )
          ." --- Rebuilding " target-names $top type cr
       then
       command-lines $top expand-macros $sh
+
    then
    rebuild pop drop
    dictionary-files $drop

@@ -109,7 +109,9 @@ headerless
    r> rotate_left + swap !
 ;
 
+[ifndef] l+!
 : l+!   ( n a -- )   dup l@ rot + swap l!  ;
+[then]
 
 \ Basic MD5 step. Transforms md5buf based on md5input.
 variable md5a

@@ -76,6 +76,8 @@ variable overflow
    ( str )
 ;
 
+variable prior
+
 : find-candidates  ( str -- )
    #candidates off  overflow off
    prior off        ( str )

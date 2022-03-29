@@ -1,0 +1,130 @@
+purpose: Load file for base firmware - no platform specifics
+\ See license at end of file
+
+dictionary: ${BP}/cpu/arm64/build/tools.dic
+command: &arm64forth &dictionary &this
+build-now
+
+" basefw.tag" open-tagfile
+
+\ ' $report-name is include-hook
+\ ' $report-name+ is include-hook  \ Get source file name + stack dump
+
+create include-help                     \ Include help facility
+
+fload ${BP}/cpu/arm64/pause.fth	        \ multitasking primitives
+
+fload ${BP}/cpu/arm64/ofwcore.fth       \ >instance-data
+alias cfill fill
+fload ${BP}/ofw/core/ofwcore.fth        \ Device tree and other OBP routines
+alias .p .properties
+\ wrtime defines vectors for getd-usecs, us, and ms
+fload ${BP}/forth/lib/wrtime.fth        \ Get time in micro-seconds and milli-seconds
+
+fload ${BP}/ofw/core/ofwfw.fth          \ FirmWorks enhancements
+fload ${BP}/ofw/core/memops.fth         \ Call memory node methods
+fload ${BP}/ofw/core/mmuops.fth         \ Call MMU node methods
+
+\ h# 100000 alloc-mem to load-base
+
+\ fload ${BP}/cpu/arm64/irq.fth         \ Exception handlers
+fload ${BP}/cpu/arm64/traps.fth         \ Exception handlers
+fload ${BP}/cpu/arm64/psr.fth           \ Special registers
+\ fload ${BP}/cpu/arm64/getms.fth       \ Timer access
+
+fload ${BP}/cpu/arm64/centry.fth        \ Low-level client entry and exit
+fload ${BP}/cpu/arm64/fb8-ops.fth       \ 8-bit frame buffer primitives
+
+fload ${BP}/ofw/confvar/loadcv.fth      \ Configuration variables
+fload ${BP}/ofw/core/silentmd.fth       \ NVRAM variable silent-mode?
+
+warning off   \ A bunch of redefined words in here ... Sigh.
+fload ${BP}/ofw/termemu/loadfb.fth      \ Frame buffer support
+fload ${BP}/ofw/termemu/difont.fth      \ Get font from a dropin module
+
+fload ${BP}/ofw/gui/alert.fth           \ Basic dialogs and alerts
+fload ${BP}/dev/stringio.fth            \ Output diversion
+
+fload ${BP}/ofw/core/loadmore.fth       \ Load additional core stuff
+
+\ fload ${BP}/cpu/arm64/forthint.fth      \ Alarm handler
+\ fload ${BP}/cpu/arm64/irqdispatch.fth   \ IRQ dispatcher infrastructure
+
+fload ${BP}/cpu/arm64/regacc.fth        \ Register access words
+fload ${BP}/ofw/fcode/applcode.fth      \ Really shouldn't be in ofw/fcode
+warning on
+
+fload ${BP}/ofw/core/initprog.fth       \ FCode and Forth source load formats 
+
+fload ${BP}/ofw/core/infltdi.fth        \ Support for compressed dropin drivers
+fload ${BP}/cpu/arm64/inflater.fth      \ Built-in inflater
+
+fload ${BP}/cpu/arm64/initpgm.fth       \ Basic boot handler
+
+\ [ifdef] resident-packages
+\ support-package: fat-file-system
+\    fload ${BP}/ofw/fs/fatfs/loadpkg.fth \ FAT file system reader
+\ end-support-package
+\ 
+\ support-package: iso9660-file-system
+\    fload ${BP}/ofw/fs/cdfs/loadpkg.fth  \ ISO 9660 CD-ROM file system reader
+\ end-support-package
+\ 
+\ support-package: disk-label
+\    fload ${BP}/ofw/disklabel/loadpkg.fth        \ Disk label package
+\ end-support-package
+\ [then]
+\ 
+\ [ifdef] resident-packages
+\ fload ${BP}/ofw/fs/fatfs/fdisk2.fth     \ Partition map administration
+\ [else]
+\ autoload: fdisk2.fth
+\ defines: $.partitions
+\ defines: .partitions
+\ \ defines: init-nt-disk
+\ defines: $partition
+\ [then]
+
+fload ${BP}/forth/lib/pattern.fth       \ Text string pattern matching
+fload ${BP}/forth/lib/tofile.fth        \ to-file and append-to-file
+fload ${BP}/ofw/core/filecmds.fth       \ File commands: dir, del, ren, etc.
+
+fload ${BP}/cpu/arm64/crc32.fth
+fload ${BP}/forth/lib/crc32.fth
+
+\ fload ${BP}/cpu/arm64/float.fth
+\ fload ${BP}/cpu/arm64/complex.fth
+showstack
+
+[ifndef] no-heads
+resident   dispose   0 0 set-transize   \ true is suppress-transient
+
+close-tagfile
+
+h# 10.0000  dictionary-size !
+.( --- Saving basefw.dic --- )  cr " basefw.dic" $save-forth
+[then]
+
+\ LICENSE_BEGIN
+\ Copyright (c) 1994 FirmWorks
+\
+\ Permission is hereby granted, free of charge, to any person obtaining
+\ a copy of this software and associated documentation files (the
+\ "Software"), to deal in the Software without restriction, including
+\ without limitation the rights to use, copy, modify, merge, publish,
+\ distribute, sublicense, and/or sell copies of the Software, and to
+\ permit persons to whom the Software is furnished to do so, subject to
+\ the following conditions:
+\
+\ The above copyright notice and this permission notice shall be
+\ included in all copies or substantial portions of the Software.
+\
+\ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+\ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+\ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+\ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+\ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+\ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+\ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+\
+\ LICENSE_END

@@ -336,7 +336,6 @@ variable flags-t
    -rot dup 1+ /link-t +                      ( thread str,len n )
    here-t + dup acf-aligned-t swap - allot-t  ( thread str,len )
 
-
    tuck here-t over 1+ note-string-t allot-t  ( thread len str,len adr )
    place-cstr-t  over + c!-t                  ( thread )
 
@@ -344,7 +343,6 @@ variable flags-t
 \tagvoc-t  here-t 1- flags-t !
 
 \nottagvoc-t   here-t flags-t !  0 c,-t     \ place the flags byte
-
 
    \ get the link to the top word           ( thread )
    dup link-t@                              ( thread top-word )
@@ -354,9 +352,8 @@ variable flags-t
 
    \ link the thread to the new word
    here-t swap link-t!
-
-
 ;
+
 : showsym  ( str -- )
    base @ >r hex
    here-t 8 u.r  ( drop )  space type cr
@@ -493,10 +490,7 @@ variable #user-t
 \ of defining the label.
 
 : mlabel  \ name  ( -- )  ( Later:  -- adr-t )
-   safe-parse-word  align-t
-32\ acf-align-t
-16\ acf-align-t
-   $label
+   safe-parse-word  align-t acf-align-t  $label
 ;
 : mloclabel  \ name  ( -- )  ( Later:  -- adr-t )
    safe-parse-word  $label
@@ -575,9 +569,7 @@ transition definitions
    \ XXX the alignment should be done in startdoes; it is incorrect
    \ to assume that acf alignment is sufficient (code alignment might
    \ be stricter).
-64\ align-t             here-t doestarget !
-32\ align-t acf-align-t here-t doestarget !
-16\ align-t acf-align-t here-t doestarget !
+   align-t acf-align-t here-t doestarget !
    " startdoes" $meta-execute
    target
 ; immediate
@@ -585,9 +577,7 @@ transition definitions
 : ;code     (s -- )
    host
    ?csp  compile-t (;code)
-64\           acf-align-t
-32\  align-t  acf-align-t
-16\  align-t  acf-align-t
+   align-t  acf-align-t
    here-t doestarget !
    " start;code" $meta-execute
    [compile] [  reveal-t  entercode
@@ -707,6 +697,7 @@ alias \itc \itc-t
 alias \dtc \dtc-t
 alias \t16 \t16-t
 alias \t32 \t32-t
+alias \t64 \t64-t
 alias \tagvoc \tagvoc-t
 alias \nottagvoc \nottagvoc-t
 
@@ -725,6 +716,7 @@ alias \itc \itc-t
 alias \dtc \dtc-t
 alias \t16 \t16-t
 alias \t32 \t32-t
+alias \t64 \t64-t
 alias \tagvoc \tagvoc-t
 alias \nottagvoc \nottagvoc-t
 alias .(   .(

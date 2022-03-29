@@ -17,6 +17,8 @@
 \ own special compiling words, it will be easy to change the
 \ decompiler to include them.  This code is implementation
 \ dependant, and will not necessarily work on other Forth system.
+\ \ However, most of the  machine dependencies have been isolated into a
+\ \ separate file "decompiler.m.f".
 \ To invoke the decompiler, use the word SEE <name> where <name> is the
 \ name of a Forth word.  Alternatively,  (SEE) will decompile the word
 \ whose acf is on the stack.
@@ -25,9 +27,17 @@
 \ defer in-dictionary?
 ' (in-dictionary?) is in-dictionary?
 
+\ words are usually referenced in colon definitions
+\ and sometimes in arrys after a create
 : probably-cfa?  ( possible-acf -- flag )
    dup dup acf-aligned =  over in-dictionary?  and  if
-      colon-cf?
+      dup colon-cf?
+      over >code in-dictionary?  if  \ make sure the dereference is inbounds
+         over code?
+      else
+         false
+      then  or
+      swap create-cf?  or  \ there could be more cf tests here
    else
       drop false
    then
@@ -40,9 +50,23 @@
 : find-cfa  ( ip -- acf )
    begin
       dup in-dictionary?  0=  if  drop ['] lose  exit  then
-      #talign -  dup  probably-cfa?
-   until
+      dup probably-cfa? not
+   while
+      #talign -
+   repeat
 ;
+
+\ print the name of the word containing a given address
+: .ipname   ( a -- )
+   begin
+      dup in-dictionary?  0=  if  drop ." invalid "  exit  then
+      dup probably-cfa? not
+   while
+      #talign -
+   repeat
+   .name
+;
+
 
 \needs iscreate  create iscreate
 \needs (wlit)    create (wlit)
@@ -54,7 +78,7 @@ only forth also hidden also forth definitions
 defer (see)
 
 hidden definitions
-d# 300 2* /n* constant /positions
+d# 1024 2* /n* constant /positions
 /positions buffer: positions
 0 value end-positions
 \ 0 value line-after-;
@@ -120,7 +144,7 @@ headerless
    2dup @  u<  if  na1+ swap na+   else   out  then
 ;
 : maptoken  ( # apf -- a ) \ convert subscript # to address a
-   2dup @  u<  if  na1+ swap /token * +   else   out  then
+   2dup @  u<  if  na1+ swap ta+   else   out  then
 ;
 
 forth definitions
@@ -224,7 +248,7 @@ variable extent  extent off
 : .$endcase  ( ip -- ip' )  .." $endcase" cr ta1+  ;
 
 : add-break  ( break-address break-type -- )
-   end-breaks @  breaks /breaks +  >=        ( adr,type full? )
+   end-breaks @  breaks /breaks /n* +  >=    ( adr,type full? )
    abort" Decompiler table overflow"         ( adr,type )
    end-breaks @ breaks >  if                 ( adr,type )
       over end-breaks @ /n 2* - >r r@ 2@     ( adr,type  adr prev-adr,type )
@@ -275,8 +299,12 @@ variable extent  extent off
    +branch
 ;
 
-: scan-unnest  ( ip -- ip' | 0 )
+: scan-exit  ( ip -- ip' | 0 )
    dup extent @ u>=  if  drop 0  else  ta1+  then
+;
+: scan-unnest  ( ip -- ip' | 0 )
+   dup extent @ u< abort" early unnest "
+   drop 0
 ;
 : scan-;code ( ip -- ip' | 0 )  does-ip?  0=  if  drop 0  then  ;
 : .;code    (s ip -- ip' )
@@ -330,21 +358,10 @@ variable extent  extent off
    2 pick count        ( ip name$ $ )
    2swap               ( ip $ name$ )
 ;
-
-: type#  ( $ -- )  \ render control characters as green #
-   bounds ?do
-      i c@ dup h# 20 < if
-	 drop green-letters ." #" red-letters
-      else
-	 emit
-      then
-   loop
-;
-
 : .string-tail  ( $ name$ -- )
    2 pick over +  3 + ?line    ( $ name$ )  \ Keep word and string on the same line
    cr".  space                 ( $ )
-   red-letters type#           ( )
+   red-letters type            ( )
    magenta-letters             ( )
    ." "" "                     ( )
    cancel                      ( )
@@ -402,19 +419,23 @@ headerless
 \ Use this version of .branch if the structured conditional code is not used
 \ : .branch     ( ip -- ip' )  .word   dup <w@ .   /branch +   ;
 
-: .unnest     ( ip -- ip' )
+: .exit     ( ip -- ip' )
    dup extent @ u>=  if
       ??cr 0 lmargin ! .." ;" drop   0
    else
       .." exit " ta1+
    then
 ;
+: .unnest     ( ip -- ip' )
+\   dup extent @ u< abort"  unnest within a word "
+   0 lmargin ! indent .." ; " drop   0
+;
 : dummy ;
 
 \ classify each word in a definition
 
 \  Common constant for sizing the three classes:
-d# 36 constant #decomp-classes
+d# 40 constant #decomp-classes
 
 #decomp-classes tassociative: execution-class  ( token -- index )
    (  0 ) [compile]  (lit)           (  1 ) [compile]  ?branch
@@ -427,7 +448,7 @@ d# 36 constant #decomp-classes
    ( 14 ) [compile]  exit            ( 15 ) [compile]  (wlit)
    ( 16 ) [compile]  (')             ( 17 ) [compile]  (of)
    ( 18 ) [compile]  (endof)         ( 19 ) [compile]  (endcase)
-   ( 20 ) [compile]  dummy	     ( 21 ) [compile]  (is)
+   ( 20 ) [compile]  dummy 	     ( 21 ) [compile]  (is)
    ( 22 ) [compile]  (dlit)          ( 23 ) [compile]  (llit)
    ( 24 ) [compile]  (n")            ( 25 ) [compile]  isdefer
    ( 26 ) [compile]  isuser          ( 27 ) [compile]  isvalue
@@ -435,6 +456,8 @@ d# 36 constant #decomp-classes
    ( 30 ) [compile]  ($of)           ( 31 ) [compile]  ($endof)
    ( 32 ) [compile]  ($endcase)      ( 33 ) [compile]  dummy
    ( 34 ) [compile]  dummy           ( 35 ) [compile]  dummy
+   ( 36 ) [compile]  dummy           ( 37 ) [compile]  dummy
+   ( 38 ) [compile]  dummy           ( 39 ) [compile]  dummy
 
 \ Print a word which has been classified by  execution-class
 #decomp-classes 1+ case: .execution-class  ( ip index -- ip' )
@@ -445,10 +468,10 @@ d# 36 constant #decomp-classes
    (  8 )     .string                (  9 )     .;code
    ( 10 )     .unnest                ( 11 )     .string
    ( 12 )     .?do                   ( 13 )     .;code
-   ( 14 )     .unnest                ( 15 )     .wlit
+   ( 14 )     .exit                  ( 15 )     .wlit
    ( 16 )     .(')                   ( 17 )     .of
    ( 18 )     .endof                 ( 19 )     .endcase
-   ( 20 )     dummy                  ( 21 )     .is
+   ( 20 )     .string                  ( 21 )     .is
    ( 22 )     .dlit                  ( 23 )     .llit
    ( 24 )     .nstring               ( 25 )     .is
    ( 26 )     .is                    ( 27 )     .is
@@ -456,6 +479,8 @@ d# 36 constant #decomp-classes
    ( 30 )     .$of                   ( 31 )     .$endof
    ( 32 )     .$endcase              ( 33 )     dummy
    ( 34 )     dummy                  ( 35 )     dummy
+   ( 36 )     dummy                  ( 37 )     dummy
+   ( 38 )     dummy                  ( 39 )     dummy
    ( default ) .word
 ;
 
@@ -469,7 +494,7 @@ d# 36 constant #decomp-classes
    (  8 )     skip-string            (  9 )     scan-;code
    ( 10 )     scan-unnest            ( 11 )     skip-string
    ( 12 )     skip-branch            ( 13 )     scan-;code
-   ( 14 )     scan-unnest            ( 15 )     skip-wlit
+   ( 14 )     scan-exit              ( 15 )     skip-wlit
    ( 16 )     skip-(')		     ( 17 )     scan-of
    ( 18 )     skip-branch            ( 19 )     skip-word
    ( 20 )     skip-string            ( 21 )     skip-word
@@ -480,17 +505,19 @@ d# 36 constant #decomp-classes
    ( 30 )     scan-$of               ( 31 )     skip-branch
    ( 32 )     skip-word              ( 33 )     dummy
    ( 34 )     dummy                  ( 35 )     dummy
-  ( default ) skip-word
+   ( 36 )     dummy                  ( 37 )     dummy
+   ( 38 )     dummy                  ( 39 )     dummy
+   ( default ) skip-word
 ;
 
 headers
 also forth definitions
 : install-decomp  ( literal-acf display-acf skip-acf -- )
+   rot
+   ['] dummy ['] execution-class >body na1+ dup #decomp-classes ta+ tsearch
+   0= if  ." ERROR decompiler table is full " cr abort  then  token!
    ['] dummy ['] do-scan          (patch
    ['] dummy ['] .execution-class (patch
-   ['] dummy ['] execution-class >body na1+
-	       dup [ #decomp-classes ] literal ta+ tsearch
-   drop token!
 ;
 previous definitions
 headerless
@@ -588,47 +615,68 @@ create iscreate
 : wt,  \ name  ( -- )  \ Compile name's word type
    ' word-type token,
 ;
+d# 20 constant #word-types
 
-d# 10 tassociative: word-types
+#word-types tassociative: word-types
    ( 0 )   wt, here        ( 1 )   wt, bl
    ( 2 )   wt, isvar       ( 3 )   wt, base
    ( 4 )   wt, emit        ( 5 )   wt, iscreate
    ( 6 )   wt, forth       ( 7 )   wt, isalias
    ( 8 )   wt, isval       ( 9 )   wt, is2cons
+   ( 10 )  wt, dummy       ( 11 )  wt, dummy
+   ( 12 )  wt, dummy       ( 13 )  wt, dummy
+   ( 14 )  wt, dummy       ( 15 )  wt, dummy
+   ( 16 )  wt, dummy       ( 17 )  wt, dummy
+   ( 18 )  wt, dummy       ( 19 )  wt, dummy
 
 : cf,  \ name  ( -- )  \ Compile name's code field
    ' token,
 ;
-d# 12 constant #definition-classes
-#definition-classes tassociative: definition-class
+#word-types 1+ tassociative: definition-class
    ( 0 )   cf,  :          ( 1 )   cf,  constant
    ( 2 )   cf,  variable   ( 3 )   cf,  user
    ( 4 )   cf,  defer      ( 5 )   cf,  create
    ( 6 )   cf,  vocabulary ( 7 )   cf,  alias
    ( 8 )   cf,  value      ( 9 )   cf,  2constant
-   ( 10)   cf,  code       ( 11 )  cf,  dummy
+   ( 10 )  cf,  dummy      ( 11 )  cf,  dummy
+   ( 12 )  cf,  dummy      ( 13 )  cf,  dummy
+   ( 14 )  cf,  dummy      ( 15 )  cf,  dummy
+   ( 16 )  cf,  dummy      ( 17 )  cf,  dummy
+   ( 18 )  cf,  dummy      ( 19 )  cf,  dummy
+   ( 20 )  cf,  code
 
-#definition-classes 1+ case: .definition-class
+#word-types 2+  case: .definition-class
    ( 0 )   .:              ( 1 )   .constant
    ( 2 )   .variable       ( 3 )   .user
    ( 4 )   .defer          ( 5 )   .create
    ( 6 )   .vocabulary     ( 7 )   .alias
    ( 8 )   .value          ( 9 )   .2constant
-   ( 10)   .code           ( 11)   dummy
-   ( 12)   .other
+   ( 10 )  dummy           ( 11 )  dummy
+   ( 12 )  dummy           ( 13 )  dummy
+   ( 14 )  dummy           ( 15 )  dummy
+   ( 16 )  dummy           ( 17 )  dummy
+   ( 18 )  dummy           ( 19 )  dummy
+   ( 20 )   .code          ( 21 )  .other
 ;
 
 headers
-also forth definitions
+also forth definitions 
 : install-decomp-definer  ( definer-acf display-acf -- )
    ['] dummy ['] .definition-class (patch
    ['] dummy ['] definition-class >body na1+
-	       dup [ #definition-classes ] literal ta+ tsearch
+               dup [ #word-types ] literal ta+ tsearch
    drop token!
+;
+: install-decomp-class  ( word-type defclass .defclass -- )
+   swap
+   ['] dummy ['] definition-class >body na1+ dup #word-types ta+ tsearch
+   0= if  ." ERROR decompiler class table is full " cr abort  then  token!
+
+   ['] dummy ['] .definition-class (patch
+   ['] dummy word-type [ hidden ] ['] word-types 4 ta+  (patch
 ;
 previous definitions
 headerless
-
 
 : does/;code-xt?  ( xt -- flag )
    dup  ['] (does>) =  swap  ['] (;code) =  or
@@ -658,7 +706,8 @@ headerless
 
 \ top level of the decompiler SEE
 : ((see   ( acf -- )
-   d# 48 rmargin !
+\   d# 48 rmargin !
+   d# 80 rmargin !
    dup dup definer dup   definition-class .definition-class
    .immediate
    ??cr

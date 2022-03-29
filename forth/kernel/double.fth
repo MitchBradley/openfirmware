@@ -75,6 +75,22 @@ headers
    0  2r> d+      ( res.lo res.mid res.hi )
 ;
 
+: mask ( #bits -- )
+32\        dup h# 20 = if drop 0 1- exit then
+64\        dup h# 40 = if drop 0 1- exit then
+           1 swap lshift 1-
+;
+
+: dmask  ( n -- du )  \ Double-number mask with n low-order bits set
+   dup d# 64 = if drop h# ffff.ffff dup exit then
+   dup d# 32 and if
+      d# 31 and mask h# ffff.ffff swap
+   else   ( n )
+      mask 0
+   then
+;
+
+
 \ LICENSE_BEGIN
 \ Copyright (c) 2006 FirmWorks
 \ 

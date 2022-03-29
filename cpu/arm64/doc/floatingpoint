@@ -1,0 +1,55 @@
+
+Notes on the current state of floating point support for ARM64 OFW.
+
+There is just enough to be useful. A lot is missing.
+Some names should change to conform with ofw/doc/ANS\ Forth.pdf 
+
+Floats use the normal data stack. Default is double precision.
+Single precision is also supported. FP16 is not.
+
+Stack notation: since we often use f for flags, use r for reals.
+"A foolish consistency is the hobgoblin of little minds" -- Emerson
+
+
+IO primitives
+(f.)        ( r -- $ )                    \ convert a float to a string
+$fnumber    ( $ -- true | r false )       \ convert a string to a float
+
+also
+(sf.)       ( sr -- $ )       \ convert a single to a string
+$sfnumber   ( $ -- sr )       \ convert a string to a single
+
+Format Conversion
+float       ( n -- r )
+int         ( r -- n )
+df>sf       ( double -- single )
+sf>df       ( single -- double )
+
+and a few to pack values for SIMD registers
+: df>2s  ( r1 r0 -- s1s0 )   fd>fs swap fd>fs lxjoin  ;
+: qf>4s  ( r3 r2 r1 r0 -- s3s2 s1s0 )   df>2s >r df>2s r>  ;
+
+
+Operations
+Just the bare minimum so far:
+
+f+ f- f* f/ fabs fnegate
+f> f>= f< f<=
+
+
+Register access words help with interactive debug of SIMD operations.
+Operations such as f+ use the high half of the register set, so the low half
+can be used for debug. Examples in arm64/complex.fth
+
+q0@ .. q15@
+q0! .. q15!
+
+There are also words to print SIMD values, for example
+q0@ .16b
+
+
+Transcendentals
+
+The ARM64 instruction set does not include transcendentals such as sin and cos,
+fsin and fcos have been added, but not much else. complex.fth also defines e^iz
+

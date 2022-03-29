@@ -1,0 +1,377 @@
+SPSR_SVC
+0,C0,0
+EL1 or higher access
+SPSR_EL1
+0,C0,0
+EL1 or higher access
+ELR_EL1
+0,C0,1
+EL1 or higher access
+SP_EL0
+0,C1,0
+EL1 or higher access*
+SPSel
+0,C2,0
+EL1 or higher access
+DAIF
+3,C2,1
+EL0 or higher access (configurable for EL0)
+CurrentEL
+0,C2,2
+EL1 or higher access (Read Only)
+NZCV
+3,C2,0
+EL0 or higher access
+FPCR
+3,C4,0
+EL0 or higher access
+FPSR
+3,C4,1
+EL0 or higher access
+DSPSR
+3,C5,0
+EL0 or higher access; debug state only
+DLR
+3,C5,1
+EL0 or higher access; debug state only
+SPSR_HYP
+4,C0,0
+EL2 or higher access
+SPSR_EL2
+4,C0,0
+EL2 or higher access
+ELR_EL2
+4,C0,1
+EL2 or higher access
+SP_EL1
+4,C1,0
+EL2 or higher access
+SPSR_irq
+4,C3,0
+EL2 or higher access
+SPSR_abt
+4,C3,1
+EL2 or higher access
+SPSR_und
+4,C3,2
+EL2 or higher access
+SPSR_fiq
+4,C3,3
+EL2 or higher access
+SPSR_EL3
+6,C0,0
+EL3 or higher access
+ELR_EL3
+6,C0,1
+EL3 or higher access
+SP_EL2
+6,C1,0
+EL3 or higher access
+MIDR_EL1
+3,0,C0,C0,0
+Read-only
+CTR_EL0
+3,3,C0,C0,1
+Read-only – configurably EL0 accessible
+MPIDR_EL1[63:0]
+3,0,C0,C0,5
+Read-only
+REVIDR_EL1
+3,0,C0,C0,6
+Read-only
+DCZID_EL0
+3,3,C0,C0,7
+Read-only - See section 3.11.4.
+ID_PFR0_EL1
+3,0,C0,C1,0
+Read-only – is RAZ if AArch32 is not implemented
+ID_PFR1_EL1
+3,0,C0,C1,1
+Read-only – is RAZ if AArch32 is not implemented
+ID_DFR0_EL1
+3,0,C0,C1,2
+Read-only – is RAZ if AArch32 is not implemented
+ID_AFR0_EL1
+3,0,C0,C1,3
+Read-only – is RAZ if AArch32 is not implemented
+ID_MMFR0_EL1
+3,0,C0,C1,4
+Read-only – is RAZ if AArch32 is not implemented
+ID_MMFR1_EL1
+3,0,C0,C1,5
+Read-only – is RAZ if AArch32 is not implemented
+ID_MMFR2_EL1
+3,0,C0,C1,6
+Read-only – is RAZ if AArch32 is not implemented
+ID_MMFR3_EL1
+3,0,C0,C1,7
+Read-only – is RAZ if AArch32 is not implemented
+ID_ISAR0_EL1
+3,0,C0,C2,0
+Read-only – is RAZ if AArch32 is not implemented
+ID_ISAR1_EL1
+3,0,C0,C2,1
+Read-only – is RAZ if AArch32 is not implemented
+ID_ISAR2_EL1
+3,0,C0,C2,2
+Read-only – is RAZ if AArch32 is not implemented
+ID_ISAR3_EL1
+3,0,C0,C2,3
+Read-only – is RAZ if AArch32 is not implemented
+ID_ISAR4_EL1
+3,0,C0,C2,4
+Read-only – is RAZ if AArch32 is not implemented
+ID_ISAR5_EL1
+3,0,C0,C2,5
+Read-only – is RAZ if AArch32 is not implemented
+MVFR0_EL1
+3,0,C0,C3,0
+Read-only - moved for ARMv8
+MVFR1_EL1
+3,0,C0,C3,1
+Read-only - moved for ARMv8
+MVFR2_EL1
+3,0,C0,C3,2
+Read-only - moved for ARMv8
+ID_AA64PFRn_EL1
+3,0,C0,C4,n
+Read-only, n in range 0-1
+ID_AA64DFRn_EL1
+3,0,C0,C5,n
+Read-only, n in range 0-1
+ID_AA64AFRm_EL1
+3,0,C0,C5,n
+Read-only, n in range 4-5, m=n-4
+ID_AA64ISARn_EL1
+3,0,C0,C6,n
+Read-only, n in range 0-1
+ID_AA64MMFRn_EL1
+3,0,C0,C7,n
+Read-only, n in range 0-1
+CCSIDR_EL1
+3,1,C0,C0,0
+Read-only
+CLIDR_EL1
+3,1,C0,C0,1
+Read-only
+AIDR_EL1
+3,1,C0,C0,7
+Read-only
+CSSELR_EL1
+3,2,C0,C0,0
+VPIDR_EL2
+3,4,C0,C0,0
+VMPIDR_EL2[63:0]
+3,4,C0,C0,5
+SCTLR_EL1
+3,0,C1,C0,0
+SCTLR_EL2
+3,4,C1,C0,0
+SCTLR_EL3
+3,6,C1,C0,0
+ACTLR_EL1
+3,0,C1,C0,1
+IMP DEF registers
+ACTLR_EL2
+3,4,C1,C0,1
+IMP DEF registers
+ACTLR_EL3
+3,6,C1,C0,1
+IMP DEF registers
+CPACR_EL1
+3,0,C1,C0,2
+Only applies to Floating-point and Advanced SIMD
+CPTR_EL2
+3,4,C1,C1,2
+Only applies to Floating-point and Advanced SIMD
+CPTR_EL3
+3,6,C1,C1,2
+Only applies to Floating-point and Advanced SIMD
+SCR_EL3
+3,6,C1,C1,0
+HCR_EL2[63:0]
+3,4,C1,C1,0
+MDCR_EL2
+3,4,C1,C1,1
+MDCR_EL3
+3,6,C1,C3,1
+Note: this has moved from a previous release of this document
+HSTR_EL2
+3,4,C1,C1,3
+HACR_EL2
+3,4,C1,C1,7
+IMP DEF registers
+TTBR0_EL1[63:0]
+3,0,C2,C0,0
+TTBR1_EL1[63:0]
+3,0,C2,C0,1
+TTBR0_EL2[63:0]
+3,4,C2,C0,0
+TTBR0_EL3[63:0]
+3,6,C2,C0,0
+VTTBR_EL2[63:0]
+3,4,C2,C1,0
+TCR_EL1[63:0]
+3,0,C2,C0,2
+TCR_EL2
+3,4,C2,C0,2
+TCR_EL3
+3,6,C2,C0,2
+VTCR_EL2
+3,4,C2,C1,2
+AFSR0_EL1
+3,0,C5,C1,0
+IMP DEF registers
+AFSR1_EL1
+3,0,C5,C1,1
+IMP DEF registers
+AFSR0_EL2
+3,4,C5,C1,0
+IMP DEF registers
+AFSR1_EL2
+3,4,C5,C1,1
+IMP DEF registers
+AFSR0_EL3
+3,6,C5,C1,0
+IMP DEF registers
+AFSR1_EL3
+3,6,C5,C1,1
+IMP DEF registers
+ESR_EL1
+3,0,C5,C2,0
+ESR_EL2
+3,4,C5,C2,0
+ESR_EL3
+3,6,C5,C2,0
+FAR_EL1[63:0]
+3,0,C6,C0,0
+FAR_EL2[63:0]
+3,4,C6,C0,0
+FAR_EL3[63:0]
+3,6,C6,C0,0
+HPFAR_EL2[63:0]
+3,4,C6,C0,4
+PAR_EL1[63:0]
+3,0,C7,C4,0
+MAIR_EL1[63:0]
+3,0,C10,C2,0
+MAIR_EL2[63:0]
+3,4,C10,C2,0
+MAIR_EL3[63:0]
+3,6,C10,C2,0
+AMAIR_EL1[63:0]
+3,0,C10,C3,0
+AMAIR_EL2[63:0]
+3,4,C10,C3,0
+AMAIR_EL3[63:0]
+3,6,C10,C3,0
+VBAR_EL1[63:0]
+3,0,C12,C0,0
+VBAR_EL2[63:0]
+3,4,C12,C0,0
+VBAR_EL3[63:0]
+3,6,C12,C0,0
+RVBAR_EL1[63:0]
+3,0,C12,C0,1
+Read-only – only implemented if EL2 and EL3 are not implemented - see section 5.3
+RVBAR_EL2[63:0]
+3,4,C12,C0,1
+Read-only - only implemented if EL3 is not implemented- see section 5.3
+RVBAR_EL3[63:0]
+3,6,C12,C0,1
+Read-only
+ISR_EL1
+3,0,C12,C1,0
+Read-only
+CONTEXTIDR_EL1
+3,0,C13,C0,1
+CPU_GLOBALS[63:0]
+3,3,C13,C0,2
+An alias of TPIDR_EL0 to make the code clearer
+PHLEET_GLOBALS[63:0]
+3,3,C13,C0,3
+An alias of TPIDRRO_EL0 to make the code clearer
+TPIDR_EL0[63:0]
+3,3,C13,C0,2
+TPIDRRO_EL0[63:0]
+3,3,C13,C0,3
+TPIDR_EL1[63:0]
+3,0,C13,C0,4
+TPIDR_EL2[63:0]
+3,4,C13,C0,2
+TPIDR_EL3[63:0]
+3,6,C13,C0,2
+TEECR32_EL1
+2,2,C0,C0,0
+See section 3.10.7.1
+Timer registers
+CNTFRQ_EL0
+3,3,C14,C0,0
+Read-only at EL1 – can be written at the highest exception level implemented – configurably EL0 accessible
+CNTPCT_EL0[63:0]
+3,3,C14,C0,1
+Read-only – configurably EL0 accessible
+CNTVCT_EL0[63:0]
+3,3,C14,C0,2
+Read-only – configurably EL0 accessible
+CNTVOFF_EL2[63:0]
+3,4,C14,C0,3
+CNTKCTL_EL1
+3,0,C14,C1,0
+CNTHCTL_EL2
+3,4,C14,C1,0
+CNTP_TVAL_EL0
+3,3,C14,C2,0
+Configurably EL0 accessible
+CNTP_CTL_EL0
+3,3,C14,C2,1
+Configurably EL0 accessible
+CNTP_CVAL_EL0[63:0]
+3,3,C14,C2,2
+Configurably EL0 accessible
+CNTV_TVAL_EL0
+3,3,C14,C3,0
+Configurably EL0 accessible
+CNTV_CTL_EL0
+3,3,C14,C3,1
+Configurably EL0 accessible
+CNTV_CVAL_EL0[63:0]
+3,3,C14,C3,2
+Configurably EL0 accessible
+CNTHP_TVAL_EL2
+3,4,C14,C2,0
+CNTHP_CTL_EL2
+3,4,C14,C2,1
+CNTHP_CVAL_EL2[63:0]
+3,4,C14,C2,2
+CNTPS_TVAL_EL1
+3,7,C14,C2,0
+Configurably secure EL1 accessible, otherwise just EL3 accessible
+CNTPS_CTL_EL1
+3,7,C14,C2,1
+Configurably secure EL1 accessible, otherwise just EL3 accessible
+CNTPS_CVAL_EL1[63:0]
+3,7,C14,C2,2
+Configurably secure EL1 accessible, otherwise just EL3 accessible
+The following registers are defined to allow access from AArch64 to registers which are only used in the AArch32 architecture
+DACR32_EL2
+3,4,C3,C0,0
+If execution in 64-bit state occurs at EL1 or EL0, this register retains its state, but the value in this register has no effect on execution
+If EL1 cannot use AArch32, this register is UNDEFINED
+IFSR32_EL2
+3,4,C5,C0,1
+If execution in 64-bit state occurs at EL1 or EL0, this register retains its state, but the value in this register has no effect on
+execution
+If EL1 cannot use AArch32, this register is UNDEFINED
+TEEHBR32_EL1
+2,2,C1,C0,0
+If execution in 64-bit state occurs at EL1 or EL0, this register retains its state, but the value in this register has no effect on execution
+If EL0 cannot use AArch32, this register is UNDEFINED
+SDER32_EL3
+3,6,C1,C1,1
+If execution in 64-bit state occurs at EL1 or EL0, this register retains its state, but the value in this register has no effect on execution
+If EL1 cannot use AArch32, this register is UNDEFINED
+FPEXC32_EL2
+3,4,C5,C3,0
+If execution in 64-bit state occurs this register retains its state (unless explicitly written in EL2 or EL3), but the value in this register has no effect on execution (other than for explicit reads in EL2 or EL3).
+If all exceptions levels cannot use AArch32, this register is UNDEFINED
