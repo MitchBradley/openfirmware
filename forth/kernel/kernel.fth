@@ -807,12 +807,15 @@ headers
 : -level  ( -- )
    state @ 0= ( -22 ) abort" Control structure mismatch"
    level @  if
-      -1 level +!
-      level @ 0=  if
+      \ Some exception handlers check the SP against the DP and
+      \ spin if SP < DP and level == 0.
+      \ Therefore, we want to restore the DP BEFORE decrementing the level.
+      level @ 1 =  if
          \ If back to level 0, execute the temporary definition
          compile unnest  reset-dp
          [compile] [  compile-buffer >ip
       then
+      -1 level +!
    then
 ;
 [then]
@@ -962,7 +965,7 @@ hex
       drop false                                      ( ud dbl? )
    then                                               ( ud dbl? )
 
-   r> base !
+   r> base !                                          ( ud dbl? ) ( r: neg? )
    over or  if                                        ( ud )
       r>  if  dnegate  then  2
    else
@@ -1183,10 +1186,8 @@ nuser csp          \ for stack position error checking
 : !csp   (s -- )   sp@ csp !   ;
 : ?csp   (s -- )   sp@ csp @ <>   ( -22 ) abort" Stack Changed "  ;
 
-: (;code)   (s -- )  ip>  aligned acf-aligned  used   ;
-64\ : (does>)   (s -- )  ip>     aligned  used   ;
-32\ : (does>)   (s -- )  ip> acf-aligned  used   ;
-16\ : (does>)   (s -- )  ip> acf-aligned  used   ;
+: (;code)   (s -- )  ip> aligned acf-aligned  used   ;
+: (does>)   (s -- )  ip> acf-aligned  used   ;
 
 defer do-entercode
 ' noop is do-entercode
@@ -1205,9 +1206,7 @@ defer do-exitcode
 
 : ;code     (s -- )
    ?csp   compile  (;code)
-16\ align acf-align
-32\ align acf-align
-64\       acf-align
+   align acf-align
    place-;code
    [compile] [   reveal   do-entercode
 ; immediate
@@ -1216,13 +1215,9 @@ defer do-exitcode
    state @  if
      compile (does>)
    else
-16\  here aligned acf-aligned  used  !csp not-hidden  ]
-32\  here aligned acf-aligned  used  !csp not-hidden  ]
-64\  here aligned              used  !csp not-hidden  ]
+     here aligned acf-aligned  used  !csp not-hidden  ]
    then
-16\ align acf-align  place-does
-32\ align acf-align  place-does
-64\ align            place-does
+   align acf-align  place-does
 ; immediate
 
 : :        (s -- )  ?exec  !csp   header  hide   ]  colon-cf  ;
@@ -1379,7 +1374,9 @@ headers
 : link>    ( alf -- acf )  /link +  ;
 : >link    ( acf -- alf )  /link -  ;
 : >flags   ( acf -- aff )  >name n>flags  ;
+
 : name>string  ( anf -- adr len )  dup c@ h# 1f and  tuck - swap  ;
+
 : l>beginning  ( alf -- adr )  l>name name>string drop  ;
 : >threads  ( acf -- ath )  >body >user  ;
 
@@ -1397,16 +1394,21 @@ decimal
 : tag-char  ( char -- )  tag-file @ fputc  ;
 : $tagout  ( name$ -- )
    tag-file @ 0=  if  2drop exit  then
-   source-id -1 =  if  2drop exit  then
+   source-id -1 0 between  if  2drop exit  then
    $tag-field  9 tag-char
    source-id file-name  $tag-field  9 tag-char
    base @ decimal  source-id file-line (.) $tag-field  base !
    newline-string $tag-field
 ;
+defer open-tagfile
+' 2drop is open-tagfile
+: close-tagfile   ( -- )
+   tag-file @ ?dup if   fclose  tag-file off   then
+;
 [then]
 
 : $make-header  ( adr len voc-acf -- )
-   -rot                        ( voc-acf adr,len )
+   -rot                         ( voc-acf adr,len )
    2dup $tagout
    dup 1+ /link +              ( voc-acf adr,len hdr-len )
 
@@ -1606,12 +1608,40 @@ headers
 : $canonical  ( adr len -- adr' len' )
    caps @  if  d# 31 min  canonical-word $save  2dup lower  then
 ;
+
+: $recreate-warning ( adr len xt -- )
+   drop  type ."  isn't unique " cr
+   ." Currently compiling here: " where cr
+;
+
+: $create-word-len-chk  ( adr len -- )
+  dup d# 31 >  if
+      where
+      ." Creating word with name > 31 characters: " 2dup type
+      ."   Which becomes: " over d# 31 type
+      cr
+  then
+  2drop
+;
+
+defer recreate-abort
+[ifdef] recreate-abort-t
+   ' abort is recreate-abort
+[else]
+   ' noop is recreate-abort
+[then]
+
 : $create-word  ( adr len voc-xt -- )
-   >r $canonical r>
+   -rot
+   2dup $create-word-len-chk   \ Uncomment to get warnings about long word names
+   $canonical  rot           ( adr len voc-xt )
+
    warning @  if
       3dup  $find-word  if   ( adr len voc-xt  xt )
-         drop
-	 >r 2dup type r> ."  isn't unique " cr
+	 swap >r 3dup        ( adr len xt  adr len xt  R: voc-xt )
+	 $recreate-warning   ( adr len xt  R: voc-xt )
+	 recreate-abort
+	 drop r>             ( adr len voc-xt )
       else                   ( adr len voc-xt  adr len )
          2drop
       then
@@ -1767,31 +1797,30 @@ headers
    drop compact-search-order
 ;
 
-nuser prior        \ used for dictionary searches
 : $find   (s adr len -- xt +-1 | adr len 0 )
    2dup 2>r
    $canonical        ( adr' len' )
-   prior off         ( adr len )
-   false             ( adr len found? )
+   0                 ( adr len prior ) \ prior
+   false             ( adr len prior found? )
    context-bounds  ?do
       drop
-      i get-token?  if                    ( adr len voc )
-
+      i get-token?  if                    ( adr len prior voc )
          \ Don't search the vocabulary again if we just searched it.
-         dup prior @ over prior !  =  if  ( adr len voc )
-            drop false                    ( adr len false )
+         tuck = if                        ( adr len voc )
+            false                         ( adr len prior false ) \ voc becomes new prior
          else                             ( adr len voc )
-	    $find-word  dup ?leave        ( adr len false )
-         then                             ( adr len false )
-
-      else                                ( adr len voc )
-         false                            ( adr len false )
-      then                                ( adr len false )
-   /token +loop                           ( adr len false  |  xt +-1 )
-   ?dup  if
+            dup >r $find-word             ( adr len 0 | xt +-1 )
+            r> swap dup ?leave            ( adr len prior false | xt prior +-1 ) \ voc becomes new prior
+         then                             ( adr len prior false )
+      else                                ( adr len prior )
+         false                            ( adr len prior false )
+      then                                ( adr len prior false )
+   /token +loop                           ( adr len prior false  |  xt prior +-1 )
+   ?dup  if                               ( xt prior +-1 )
+      nip  \ drop prior
       2r> 2drop
-   else
-      2drop  2r> false
+   else                                   ( adr len prior )
+      3drop  2r> false
    then
 ;
 : find  ( pstr -- pstr false  |  xt +-1 )
@@ -2338,7 +2367,7 @@ defer .error
 ;
 ' (.error) is .error
 
-: guarded  ( acf -- )  catch  ?dup  if  .error  then  ;
+: guarded  ( acf -- )  catch  ?dup  if  .error  quit then  ;
 
 \ From cold.fth
 
@@ -2610,7 +2639,7 @@ headers
 : create-file  ( name$ mode -- fileid ior )  8 or  open-file  ;
 
 : make  ( name-pstr -- flag )	\ Creates an empty file
-   count  r/w  create-file  if  drop false  else  close-file drop true  then
+   count  r/w  create-file  if  drop false  else  fclose true  then
 ;
 
 \ From readline.fth

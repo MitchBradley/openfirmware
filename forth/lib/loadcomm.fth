@@ -73,6 +73,7 @@ fload ${BP}/forth/lib/lex.fth
 fload ${BP}/forth/lib/printf.fth
 
 fload ${BP}/forth/lib/autold.fth		\ Autoload mechanism
+fload ${BP}/forth/lib/1x0.fth
 
 [ifndef] partial-no-heads	transient  [then]
 fload ${BP}/forth/lib/initsave.fth		\ Common code for save-forth et al

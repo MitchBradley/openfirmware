@@ -1,0 +1,74 @@
+   // Data Processing Immediate
+   1F00.0000  1000.0000  ; PC-rel addressing
+   1F00.0000  1100.0000  ; Add/Subtract (immediate)
+   1F80.0000  1200.0000  ; Logical (immedaite)
+   1F80.0000  1280.0000  ; Move wide (immediate)
+   1F80.0000  1300.0000  ; Bitfield
+   1F80.0000  1380.0000  ; Extract
+
+   // Branches, Exception Generation and System
+   7C00.0000  1400.0000  ; Unconditional branch (immediate)
+   7E00.0000  3400.0000  ; Compare & branch (immediate)
+   7E00.0000  3600.0000  ; Test & branch (immediate)
+   FE00.0000  5400.0000  ; Conditional branch (immediate)
+   FF00.0000  D400.0000  ; Exception generation (immediate)
+   FFC0.0000  D500.0000  ; System
+   FE00.0000  D600.0000  ; Unconditional branch (register)
+
+   // Loads and stores
+   3F00.0000  0800.0000  ; Load/store exclusive
+   3B00.0000  1800.0000  ; Load register (literal)
+   3B80.0000  2800.0000  ; Load/store no-allocate pair (offset)
+   3B80.0000  2880.0000  ; Load/store register pair (post-indexed)
+   3B80.0000  2900.0000  ; Load/store register pair (offset)
+   3B80.0000  2980.0000  ; Load/store register pair (pre-indexed)
+   3B20.0C00  3800.0000  ; Load/store register (unscaled immediate)
+   3B20.0C00  3800.0400  ; Load/store register (immediate post-indexed)
+   3B20.0C00  3800.0800  ; Load/store regisetr (unprivileged)
+   3B20.0C00  3800.0C00  ; Load/store register (immediate pre-indexed)
+   3B20.0C00  3820.0800  ; Load/store register (register offset)
+   3B00.0000  3820.0000  ; Load/store register (unsigned immediate)
+   BFBF.0000  0C00.0000  ; AdvSIMD load/store multiple elements
+   BFA0.0000  0C80.0000  ; AdvSIMD load/store multiple elements
+   BF90.0000  0D00.0000  ; AdvSIMD load/store single element
+   BF80.0000  0D80.0000  ; AdvSIMD load/store single element
+
+   // Data Processing Register
+   1F00.0000  0A00.0000  ; Logical (shifted register)
+   1F20.0000  0B00.0000  ; Add/subtract (shifted register)
+   1F20.0000  0B20.0000  ; Add/subtract (extended register)
+   1FE0.0000  1A00.0000  ; Add/subtract (with carry)
+   1FE0.0800  1A40.0000  ; Conditional compare (register)
+   1FE0.0800  1A40.0800  ; Conditional compare (immediate)
+   1FE0.0000  1A80.0000  ; Conditional select
+   1F00.0000  1B00.0000  ; Data-processing (3 source)
+   5FE0.0000  1AC0.0000  ; Data-processing (2 source)
+   5FE0.0000  5AC0.0000  ; Data-processing (1 source)
+
+   // Neon Data Processing
+   9F20.0400  0E20.0400  ; AdvSIMD three same
+   9F20.0400  0E20.0000  ; AdvSIMD three different
+   9F3E.0800  0E20.0800  ; AdvSIMD two-reg misc
+   9F3E.0800  0E30.0800  ; AdvSIMD across lanes
+   9FE0.8400  0E00.0400  ; AdvSIMD INS/DUP
+   9F00.0400  0F00.0000  ; AdvSIMD vector x indexed element
+   9F80.0400  0F00.0400  ; AdvSIMD shift by immediate
+   9FF8.0C00  0F00.0400  ; AdvSIMD modified immediate
+   BF20.8C00  0E00.0800  ; AdvSIMD ZIP/UZP/TRN
+   BFE0.8C00  0E00.0000  ; AdvSIMD TBL/TBX
+   BFE0.8400  2E00.0000  ; AdvSIMD EXT
+   5F20.0000  1E00.0000  ; Floating-point<->integer conversions
+   5F20.0C00  1E20.0400  ; Floating-point conditional compare
+   5F20.0C00  1E20.0800  ; Floating-point data-processing (2 source)
+   5F20.0C00  1E20.0C00  ; Floating-point conditional select
+   5F20.1C00  1E20.1000  ; Floating-point immediate
+   5F20.3C00  1E20.2000  ; Floating-point compare
+   5F20.7C00  1E20.4000  ; Floating-point data-processing (1 source)
+   5F00.0000  1F00.0000  ; Floating-point data-processing (3 source)
+   DF20.0400  5E20.0400  ; AdvSIMD scalar three same
+   DF20.0C00  5E20.0000  ; AdvSIMD scalar three different
+   DF3E.0C00  5E20.0800  ; AdvSIMD scalar two-reg misc
+   DF3E.0C00  5E30.0800  ; AdvSIMD scalar pairwise
+   DFE0.8400  5E00.0400  ; AdvSIMD scalar CPY
+   DF00.0400  5F00.0000  ; AdvSIMD scalar x indexed element
+   DF80.0400  5F00.0400  ; AdvSIMD scalar shift by immediate

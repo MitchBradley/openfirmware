@@ -1,0 +1,198 @@
+\ Assembler Instruction Mnemonics for ARMv8.1
+\ 180 new instructions
+
+: cas         0x88a0.7c00 m.wx  %cas  ;
+: casa        0x88e0.7c00 m.wx  %cas  ;
+: casab       0x08e0.7c00 m.w   %cas  ;
+: casah       0x48e0.7c00 m.w   %cas  ;
+: casal       0x88e0.fc00 m.wx  %cas  ;
+: casalb      0x08e0.fc00 m.w   %cas  ;
+: casalh      0x48e0.fc00 m.w   %cas  ;
+: casb        0x08a0.7c00 m.w   %cas  ;
+: cash        0x48a0.7c00 m.w   %cas  ;
+: casl        0x88a0.fc00 m.wx  %cas  ;
+: caslb       0x08a0.fc00 m.w   %cas  ;
+: caslh       0x48a0.fc00 m.w   %cas  ;
+: casp        0x0820.7c00 m.wx  %cas  ;
+: caspa       0x0860.7c00 m.wx  %cas  ;
+: caspal      0x0860.fc00 m.wx  %cas  ;
+: caspl       0x0820.fc00 m.wx  %cas  ;
+: ldadd       0xb820.0000 m.wx  %cas  ;
+: ldadda      0xb8a0.0000 m.wx  %cas  ;
+: ldaddab     0x38a0.0000 m.w   %cas  ;
+: ldaddah     0x78a0.0000 m.w   %cas  ;
+: ldaddal     0xb8e0.0000 m.wx  %cas  ;
+: ldaddalb    0x38e0.0000 m.w   %cas  ;
+: ldaddalh    0x78e0.0000 m.w   %cas  ;
+: ldaddb      0x3820.0000 m.w   %cas  ;
+: ldaddh      0x7820.0000 m.w   %cas  ;
+: ldaddl      0xb860.0000 m.wx  %cas  ;
+: ldaddlb     0x3860.0000 m.w   %cas  ;
+: ldaddlh     0x7860.0000 m.w   %cas  ;
+: ldclr       0xb820.1000 m.wx  %cas  ;
+: ldclra      0xb8a0.1000 m.wx  %cas  ;
+: ldclrab     0x38a0.1000 m.w   %cas  ;
+: ldclrah     0x78a0.1000 m.w   %cas  ;
+: ldclral     0xb8e0.1000 m.wx  %cas  ;
+: ldclralb    0x38e0.1000 m.w   %cas  ;
+: ldclralh    0x78e0.1000 m.w   %cas  ;
+: ldclrb      0x3820.1000 m.w   %cas  ;
+: ldclrh      0x7820.1000 m.w   %cas  ;
+: ldclrl      0xb860.1000 m.wx  %cas  ;
+: ldclrlb     0x3860.1000 m.w   %cas  ;
+: ldclrlh     0x7860.1000 m.w   %cas  ;
+: ldeor       0xb820.2000 m.wx  %cas  ;
+: ldeora      0xb8a0.2000 m.wx  %cas  ;
+: ldeorab     0x38a0.2000 m.w   %cas  ;
+: ldeorah     0x78a0.2000 m.w   %cas  ;
+: ldeoral     0xb8e0.2000 m.wx  %cas  ;
+: ldeoralb    0x38e0.2000 m.w   %cas  ;
+: ldeoralh    0x78e0.2000 m.w   %cas  ;
+: ldeorb      0x3820.2000 m.w   %cas  ;
+: ldeorh      0x7820.2000 m.w   %cas  ;
+: ldeorl      0xb860.2000 m.wx  %cas  ;
+: ldeorlb     0x3860.2000 m.w   %cas  ;
+: ldeorlh     0x7860.2000 m.w   %cas  ;
+: ldlar       0x88df.7c00 m.wx  %lsx0  ;
+: ldlarb      0x08df.7c00 m.w   %lsx0  ;
+: ldlarh      0x48df.7c00 m.w   %lsx0  ;
+: ldset       0xb820.3000 m.wx  %cas  ;
+: ldseta      0xb8a0.3000 m.wx  %cas  ;
+: ldsetab     0x38a0.3000 m.w   %cas  ;
+: ldsetah     0x78a0.3000 m.w   %cas  ;
+: ldsetal     0xb8e0.3000 m.wx  %cas  ;
+: ldsetalb    0x38e0.3000 m.w   %cas  ;
+: ldsetalh    0x78e0.3000 m.w   %cas  ;
+: ldsetb      0x3820.3000 m.w   %cas  ;
+: ldseth      0x7820.3000 m.w   %cas  ;
+: ldsetl      0xb860.3000 m.wx  %cas  ;
+: ldsetlb     0x3860.3000 m.w   %cas  ;
+: ldsetlh     0x7860.3000 m.w   %cas  ;
+: ldsmax      0xb820.4000 m.wx  %cas  ;
+: ldsmaxa     0xb8a0.4000 m.wx  %cas  ;
+: ldsmaxab    0x38a0.4000 m.w   %cas  ;
+: ldsmaxah    0x78a0.4000 m.w   %cas  ;
+: ldsmaxal    0xb8e0.4000 m.wx  %cas  ;
+: ldsmaxalb   0x38e0.4000 m.w   %cas  ;
+: ldsmaxalh   0x78e0.4000 m.w   %cas  ;
+: ldsmaxb     0x3820.4000 m.w   %cas  ;
+: ldsmaxh     0x7820.4000 m.w   %cas  ;
+: ldsmaxl     0xb860.4000 m.wx  %cas  ;
+: ldsmaxlb    0x3860.4000 m.w   %cas  ;
+: ldsmaxlh    0x7860.4000 m.w   %cas  ;
+: ldsmin      0xb820.5000 m.wx  %cas  ;
+: ldsmina     0xb8a0.5000 m.wx  %cas  ;
+: ldsminab    0x38a0.5000 m.w   %cas  ;
+: ldsminah    0x78a0.5000 m.w   %cas  ;
+: ldsminal    0xb8e0.5000 m.wx  %cas  ;
+: ldsminalb   0x38e0.5000 m.w   %cas  ;
+: ldsminalh   0x78e0.5000 m.w   %cas  ;
+: ldsminb     0x3820.5000 m.w   %cas  ;
+: ldsminh     0x7820.5000 m.w   %cas  ;
+: ldsminl     0xb860.5000 m.wx  %cas  ;
+: ldsminlb    0x3860.5000 m.w   %cas  ;
+: ldsminlh    0x7860.5000 m.w   %cas  ;
+: ldumax      0xb820.6000 m.wx  %cas  ;
+: ldumaxa     0xb8a0.6000 m.wx  %cas  ;
+: ldumaxab    0x38a0.6000 m.w   %cas  ;
+: ldumaxah    0x78a0.6000 m.w   %cas  ;
+: ldumaxal    0xb8e0.6000 m.wx  %cas  ;
+: ldumaxalb   0x38e0.6000 m.w   %cas  ;
+: ldumaxalh   0x78e0.6000 m.w   %cas  ;
+: ldumaxb     0x3820.6000 m.w   %cas  ;
+: ldumaxh     0x7820.6000 m.w   %cas  ;
+: ldumaxl     0xb860.6000 m.wx  %cas  ;
+: ldumaxlb    0x3860.6000 m.w   %cas  ;
+: ldumaxlh    0x7860.6000 m.w   %cas  ;
+: ldumin      0xb820.7000 m.wx  %cas  ;
+: ldumina     0xb8a0.7000 m.wx  %cas  ;
+: lduminab    0x38a0.7000 m.w   %cas  ;
+: lduminah    0x78a0.7000 m.w   %cas  ;
+: lduminal    0xb8e0.7000 m.wx  %cas  ;
+: lduminalb   0x38e0.7000 m.w   %cas  ;
+: lduminalh   0x78e0.7000 m.w   %cas  ;
+: lduminb     0x3820.7000 m.w   %cas  ;
+: lduminh     0x7820.7000 m.w   %cas  ;
+: lduminl     0xb860.7000 m.wx  %cas  ;
+: lduminlb    0x3860.7000 m.w   %cas  ;
+: lduminlh    0x7860.7000 m.w   %cas  ;
+: stadd       0xb820.001f m.wx  %stop  ;
+: staddb      0x3820.001f m.w   %stop  ;
+: staddh      0x7820.001f m.w   %stop  ;
+: staddl      0xb860.001f m.wx  %stop  ;
+: staddlb     0x3860.001f m.w   %stop  ;
+: staddlh     0x7860.001f m.w   %stop  ;
+: stclr       0xb820.101f m.wx  %stop  ;
+: stclrb      0x3820.101f m.w   %stop  ;
+: stclrh      0x7820.101f m.w   %stop  ;
+: stclrl      0xb860.101f m.wx  %stop  ;
+: stclrlb     0x3860.101f m.w   %stop  ;
+: stclrlh     0x7860.101f m.w   %stop  ;
+: steor       0xb820.201f m.wx  %stop  ;
+: steorb      0x3820.201f m.w   %stop  ;
+: steorh      0x7820.201f m.w   %stop  ;
+: steorl      0xb860.201f m.wx  %stop  ;
+: steorlb     0x3860.201f m.w   %stop  ;
+: steorlh     0x7860.201f m.w   %stop  ;
+: stllr       0x889f.7c00 m.wx  %lsx0  ;
+: stllrb      0x089f.7c00 m.w   %lsx0  ;
+: stllrh      0x489f.7c00 m.w   %lsx0  ;
+: stset       0xb820.301f m.wx  %stop  ;
+: stsetb      0x3820.301f m.w   %stop  ;
+: stseth      0x7820.301f m.w   %stop  ;
+: stsetl      0xb860.301f m.wx  %stop  ;
+: stsetlb     0x3860.301f m.w   %stop  ;
+: stsetlh     0x7860.301f m.w   %stop  ;
+: stsmax      0xb820.401f m.wx  %stop  ;
+: stsmaxb     0x3820.401f m.w   %stop  ;
+: stsmaxh     0x7820.401f m.w   %stop  ;
+: stsmaxl     0xb860.401f m.wx  %stop  ;
+: stsmaxlb    0x3860.401f m.w   %stop  ;
+: stsmaxlh    0x7860.401f m.w   %stop  ;
+: stsmin      0xb820.501f m.wx  %stop  ;
+: stsminb     0x3820.501f m.w   %stop  ;
+: stsminh     0x7820.501f m.w   %stop  ;
+: stsminl     0xb860.501f m.wx  %stop  ;
+: stsminlb    0x3860.501f m.w   %stop  ;
+: stsminlh    0x7860.501f m.w   %stop  ;
+: stumax      0xb820.601f m.wx  %stop  ;
+: stumaxb     0x3820.601f m.w   %stop  ;
+: stumaxh     0x7820.601f m.w   %stop  ;
+: stumaxl     0xb860.601f m.wx  %stop  ;
+: stumaxlb    0x3860.601f m.w   %stop  ;
+: stumaxlh    0x7860.601f m.w   %stop  ;
+: stumin      0xb820.701f m.wx  %stop  ;
+: stuminb     0x3820.701f m.w   %stop  ;
+: stuminh     0x7820.701f m.w   %stop  ;
+: stuminl     0xb860.701f m.wx  %stop  ;
+: stuminlb    0x3860.701f m.w   %stop  ;
+: stuminlh    0x7860.701f m.w   %stop  ;
+: swp         0xb820.8000 m.wx  %cas  ;
+: swpa        0xb8a0.8000 m.wx  %cas  ;
+: swpab       0x38a0.8000 m.w   %cas  ;
+: swpah       0x78a0.8000 m.w   %cas  ;
+: swpal       0xb8e0.8000 m.wx  %cas  ;
+: swpalb      0x38e0.8000 m.w   %cas  ;
+: swpalh      0x78e0.8000 m.w   %cas  ;
+: swpb        0x3820.8000 m.w   %cas  ;
+: swph        0x7820.8000 m.w   %cas  ;
+: swpl        0xb860.8000 m.wx  %cas  ;
+: swplb       0x3860.8000 m.w   %cas  ;
+: swplh       0x7860.8000 m.w   %cas  ;
+
+: sqrdmlah    ( -- )
+   4 0 try: case
+      0  of  0x2E00.8400  m.v.hs    v3same  endof
+      1  of  0x7E00.8400  m.hs     s3same  endof
+      2  of  0x2F00.D000  m.v#sd  velem-long   endof
+      3  of  0x7F00.D000  m.sd  selem-long   endof
+   endcase
+;
+: sqrdmlsh    ( -- )
+   4 0 try: case
+      0  of  0x2E00.C400  m.v.hs    v3same  endof
+      1  of  0x7E00.C400  m.hs     s3same  endof
+      2  of  0x2F00.F000  m.v#sd  velem-long   endof
+      3  of  0x7F00.F000  m.sd  selem-long   endof
+   endcase
+;

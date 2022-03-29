@@ -1,0 +1,10 @@
+purpose: Load file for arm64 builder
+
+dictionary: ${BP}/cpu/arm64/build/tools.dic
+command: &arm64forth &dictionary &this
+build-now
+
+fload ${BP}/forth/lib/builder.fth	\ Builder
+
+.( --- Saving builder.dic --- )  " builder.dic" $save-forth cr
+

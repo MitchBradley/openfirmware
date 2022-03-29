@@ -96,7 +96,6 @@ char *host_os = "Win32";
 #define DEF_DIC   "builder.dic"		/* Default Forth image file */
 #define DEF_DICT  (512*1024L)		/* Default dictionary growth space */
 
-
 #ifdef M68K
 char *host_cpu = "m68k";
 #define CPU_MAGIC 0x601e0000
@@ -160,6 +159,11 @@ char *host_cpu = "arm";
 #define HOST_LITTLE_ENDIAN
 #endif
 
+#ifdef __arm64__
+char *host_cpu = "arm64";
+#define HOST_LITTLE_ENDIAN
+#endif
+
 #ifdef HOSTPOWERPC
 char *host_cpu = "powerpc";
 # ifdef __linux__
@@ -187,6 +191,13 @@ char *target_cpu = "powerpc";
 char *target_cpu = "arm";
 #define CPU_MAGIC 0xe1a00000
 #define START_OFFSET 8
+#endif
+
+#ifdef ARM64
+char *target_cpu = "arm64";
+#define CPU_MAGIC 0xd503201f
+#define START_OFFSET 0
+#define HOST_LITTLE_ENDIAN
 #endif
 
 #ifdef SPARC
@@ -252,7 +263,11 @@ char *host_cpu = "x86";
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef ARM64
+typedef int quadlet;
+#else
 typedef long quadlet;
+#endif
 
 #ifdef WIN32
 # include <windows.h>
@@ -354,7 +369,7 @@ INTERNAL long	f_ioctl();
 INTERNAL long	f_lseek();
 INTERNAL long	f_crstr();
 
-#if defined(PPCSIM) || defined (ARMSIM) || defined(MIPSSIM)
+#if defined(PPCSIM) || defined(ARMSIM) || defined(ARM64SIM) || defined(MIPSSIM)
   /* These are not INTERNAL because the simulators use then */
   long c_key();
   long s_bye();
@@ -369,6 +384,9 @@ INTERNAL long	f_crstr();
   INTERNAL long	c_key();
   INTERNAL long	s_bye();
   INTERNAL void	restoremode();
+#endif
+#if defined(ARM64SIM)
+  void simulate_init(char *start, long imagesize, long memsize);
 #endif
 
 INTERNAL long	c_emit();
@@ -386,6 +404,7 @@ INTERNAL long	s_system();
 INTERNAL long	s_chdir();
 INTERNAL long	s_getwd();
 INTERNAL long	s_getwd0();
+INTERNAL void  *m_alloc_dictionary();
 INTERNAL long	m_alloc();
 INTERNAL long	m_realloc();
 INTERNAL long	m_free();
@@ -504,7 +523,11 @@ long (*functions[])() = {
 	f_modtime,
 
 /*	180  */
+#ifdef ARM64SIM
+        find,
+#else
 	0,	/* find_next on SPARC systems */
+#endif
 
 /*	184  */
 	m_realloc,
@@ -551,6 +574,8 @@ long (*functions[])() = {
 #ifdef USE_XCB
 	/* 392       396           400       404 */
 	open_window, close_window, rgbcolor, fill_rectangle,
+#else
+	0,           0,            0,        0,
 #endif
 };
 /*
@@ -691,7 +716,7 @@ int bittest(char *table, int index)
 		unsigned short must_be_1;
 		unsigned char  padding[512-0x1e];
 	} header;
-#elif defined(ARM)
+#elif defined(ARM) || defined(ARM64)
 	struct {
 		quadlet h_magic;
 		quadlet h_res0[5];
@@ -731,13 +756,16 @@ set_bp(void)
 	pret = getcwd(here, MAXPATHLEN);
 	pret = getcwd(bpval, MAXPATHLEN);
 	while (1) {
-		if (access(host_cpu, F_OK) == 0) {
+                // If HOSTDIR is set in environment, prefer it.
+                if ((pret = getenv("HOSTDIR")) != NULL) {
+                  strcpy(hostdirval, pret);
+                } else {
 			pret = getcwd(hostdirval, MAXPATHLEN);
 			strcat(hostdirval, "/");
 			strcat(hostdirval, host_cpu);
 			strcat(hostdirval, "/");
 			strcat(hostdirval, host_os);
-		}
+                }
 		if (access("ofw", F_OK) == 0)
 			break;
 		ret = chdir("..");
@@ -1031,12 +1059,18 @@ main(int argc, char **argv
 	printf("ARM Instruction Set Simulator\n");
 	printf("Copyright 1994 FirmWorks   All rights reserved\n");
 	printf("Copyright 2010 Apple, Inc. All rights reserved\n");
+#  elif ARM64SIM
+	printf("ARM64 Instruction Set Simulator\n");
+	printf("Copyright 1994 FirmWorks        All rights reserved\n");
+	printf("Copyright 2010-2021 Apple, Inc. All rights reserved\n");
 #  endif
 # endif
 
 #if defined(__linux__) && defined(ARM)
 	/* This is a hack to make sure loadaddr is page-aligned for mprotect() in s_flushcache() */
 	loadaddr = (char *)sbrk(memsize);
+#elif defined(ARM64SIM)
+	loadaddr = m_alloc_dictionary(memsize);
 #else
 	loadaddr = (char *)m_alloc(memsize);
 #endif
@@ -1051,7 +1085,21 @@ main(int argc, char **argv
 	memsize -= 16;  // Leave room for initial stack pointer
 	(void)memcpy(loadaddr, (char *)&header, sizeof(header));
 
-	if( f_read(f, loadaddr+sizeof(header), imagesize) != imagesize ) {
+#if !defined(ARMSIM) && !defined(ARM64SIM)
+        if (mprotect(loadaddr, memsize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+                perror("forth: mprotect");
+                exit(1);
+        }
+#endif
+
+#if defined(ARM64SIM)
+	// Don't preserve the header for ARM64SIM.
+	char *adjusted_loadaddr = loadaddr;
+#else
+	// Leave the header intact and load the rest of the image above it.
+	char *adjusted_loadaddr = loadaddr + sizeof(header);
+#endif
+	if( f_read(f, adjusted_loadaddr, imagesize) != imagesize ) {
 		error("forth: The dictionary file is too short","");
 		exit(1);
 	}
@@ -1105,7 +1153,11 @@ main(int argc, char **argv
 	s_bye(0L);
 #endif
 
-#ifdef ARMSIM
+#if defined(ARM64SIM)
+	simulate_init(loadaddr, imagesize, memsize);
+#endif
+
+#if defined(ARMSIM) || defined(ARM64SIM)
 	simulate(0L, loadaddr, loadaddr, functions,
 		 (char *)loadaddr + memsize, argc, argv);
 	s_bye(0L);
@@ -2103,6 +2155,78 @@ s_getwd0(void)
 	return ((long)getcwd(tmpbuf, MAXPATHLEN));
 }
 
+#ifdef ARM64SIM
+
+#define MB(x)           ((x) << 20)
+#define BASE_ALIGN      MB(4)
+#define BASE_MASK       (BASE_ALIGN -1)
+#define HEAP_SIZE       MB(2000)
+#define BASE_OFFSET(x)  ((BASE_ALIGN - (x)) & BASE_MASK)
+void *heap_base;
+long heap_size;
+void *heap_ptr;
+
+INTERNAL void *
+m_alloc_dictionary(long size)
+{
+    long asize = roundup(size + HEAP_SIZE, BASE_ALIGN);
+    void *abase = MAP_FAILED;
+    int mprot = PROT_READ|PROT_WRITE;
+    int mflags = MAP_ANON|MAP_PRIVATE;
+
+    abase = malloc(asize);
+    if (abase == NULL) {
+        perror("malloc");
+        exit(1);
+    }
+
+    long heap_offset = BASE_OFFSET(size);
+    heap_base = abase + size + heap_offset;
+    heap_size = ((asize - (size + heap_offset)) + BASE_MASK) & ~BASE_MASK;
+    heap_ptr = heap_base;
+
+    // printf("size = 0x%lx, asize = 0x%lx, heap_size = 0x%lx\n", size, asize, heap_size);
+    // printf("abase = %p, heap_base = %p, heap_offset = 0x%lx\n", abase, heap_base, heap_offset);
+
+    return abase;
+}
+
+INTERNAL long
+m_alloc(long size)
+{
+    void *addr;
+
+    // printf("alloc: size = %lx -> ", size);
+
+    if (size >= 0x1000) {
+        size = roundup(size, 0x1000);
+        heap_ptr = (void *)roundup((uintptr_t)heap_ptr, 0x1000);
+    } else {
+        size = roundup(size, 0x100);
+    }
+
+    addr = heap_ptr;
+    heap_ptr += size;
+
+    if (heap_ptr >= (heap_base + heap_size)) {
+        fflush(stdout);
+        fprintf(stderr, "ERROR: Forth Wrapper (simulator) Heap exhausted!\n");
+        s_bye(-1);
+    }
+
+    // printf("%p\n", addr);
+
+    return (long)addr;
+}
+
+INTERNAL long
+m_free(long size, char *adr)
+{
+    // free((void *)adr);
+    return 0L;
+}
+
+#else // ARM64SIM
 INTERNAL long
 m_alloc(long size)
 {
@@ -2124,6 +2248,7 @@ m_free(long size, char *adr)
 	free(adr);
 	return 0L;
 }
+#endif // ARM64SIM
 
 INTERNAL long
 m_realloc(long size, char *adr)

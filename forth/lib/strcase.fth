@@ -38,6 +38,13 @@
    rot tuck     ( adr1 adr2 len1  len2 len1 )
    <  if  3drop false  else  tuck u$=  then
 ;
+\ initial substring check
+: isubstring?   ( $1 $2 -- match? )
+   2>r dup 2r> rot
+   dup 0= if   5drop false exit  then   \ first string was empty
+   over u> if  4drop false exit  then   \ second string was too short
+   drop over u$=
+;
 
 : ($of)  ( $selector $test -- [$selector] )
    2over $= if
@@ -63,9 +70,9 @@
 : $of     ( -- >m )  ['] ($of)     +>mark                  ; immediate
 : $endof  ( >m -- )  ['] ($endof)  +>mark  but  ->resolve  ; immediate
 
+
 : $endcase  ( 0 [ >m ... ] -- )
    compile ($endcase)
    begin  ?dup  while  ->resolve  repeat
    -level
 ; immediate
-
