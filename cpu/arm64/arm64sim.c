@@ -2110,7 +2110,7 @@ static void sim_dp_3src(u32 instruction)
         rZERO = 0;
         return;
     case 2:                 // smulh
-        prod = (s128) RNZ * RMZ;
+        prod = (s128) (s64) RNZ * (s64) RMZ;
         RDZ = (prod >> 64);
         rZERO = 0;
         return;
